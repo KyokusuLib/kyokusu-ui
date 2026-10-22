@@ -60,7 +60,7 @@
     },
     "packages/core": {
       "name": "@kyokusu-ui/core",
-      "version": "0.0.7",
+      "version": "0.0.8",
       "devDependencies": {
         "tsup": "^8.5.1",
         "typescript": "^7.0.2",
@@ -68,7 +68,7 @@
     },
     "packages/vue": {
       "name": "@kyokusu-ui/vue",
-      "version": "0.0.7",
+      "version": "0.0.8",
       "dependencies": {
         "@phosphor-icons/vue": "^2.2.1",
       },

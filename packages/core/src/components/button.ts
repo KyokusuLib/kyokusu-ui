@@ -19,6 +19,14 @@ export class Button {
     private loaderEl?: HTMLSpanElement;
     private iconEl?: HTMLSpanElement;
 
+    private readonly handleClick = (e: MouseEvent) => {
+        if (this.options.disabled || this.options.loading) {
+            e.preventDefault();
+            return;
+        }
+        this.options.onClick?.(e);
+    };
+
     constructor(element: HTMLButtonElement | string, options: ButtonOptions = {}) {
         const target = typeof element === 'string' ? document.querySelector(element) : element;
         if (!target) {
@@ -74,15 +82,7 @@ export class Button {
         this.element.disabled = !!this.options.disabled || !!this.options.loading;
 
         // Event listener
-        this.element.addEventListener('click', (e) => {
-            if (this.options.disabled || this.options.loading) {
-                e.preventDefault();
-                return;
-            }
-            if (this.options.onClick) {
-                this.options.onClick(e);
-            }
-        });
+        this.element.addEventListener('click', this.handleClick);
     }
 
     private updateClasses() {
@@ -123,9 +123,9 @@ export class Button {
     }
 
     public unmount() {
-        // Basic cleanup
+        this.element.removeEventListener('click', this.handleClick);
         this.element.innerHTML = '';
         this.element.className = '';
-        this.element.onclick = null;
+        this.element.disabled = false;
     }
 }

@@ -1,4 +1,5 @@
 import '../styles/dropdown-menu.css';
+import { createId } from '../utils/id';
 
 export interface DropdownMenuItem {
     id: string;
@@ -14,8 +15,10 @@ export interface DropdownMenuOptions {
     items: DropdownMenuItem[];
     trigger?: 'click' | 'hover';
     placement?: 'bottom-start' | 'bottom-end' | 'top-start' | 'top-end';
-    width?: number;
+    width?: number | string;
     offset?: number;
+    /** Extra class names applied to the menu surface. */
+    className?: string;
     onSelect?: (item: DropdownMenuItem) => void;
     onOpen?: () => void;
     onClose?: () => void;
@@ -26,7 +29,9 @@ export class DropdownMenu {
     private options: DropdownMenuOptions;
     private triggerEl!: HTMLElement;
     private menuEl!: HTMLElement;
+    private menuId = '';
     private isOpen = false;
+    private openPosition: { x: number; y: number } | null = null;
     private openSubmenuCount = 0;
     private hoverTimeouts: ReturnType<typeof setTimeout>[] = [];
     private boundHandlers: Array<[EventTarget, string, EventListenerOrEventListenerObject, AddEventListenerOptions?]> = [];
@@ -56,6 +61,10 @@ export class DropdownMenu {
         this.triggerEl = this.container;
 
         this.menuEl = this.createMenu(this.options.items);
+        this.menuId = this.menuEl.id;
+        this.triggerEl.setAttribute('aria-haspopup', 'menu');
+        this.triggerEl.setAttribute('aria-expanded', 'false');
+        this.triggerEl.setAttribute('aria-controls', this.menuId);
         document.body.appendChild(this.menuEl);
 
         this.bindEvents();
@@ -64,21 +73,38 @@ export class DropdownMenu {
     private createMenu(items: DropdownMenuItem[]): HTMLElement {
         const ul = document.createElement('ul');
         ul.className = 'k-dropdown-menu';
-        ul.style.width = `${this.options.width}px`;
+        ul.id = createId('k-dropdown-menu');
+        ul.setAttribute('role', 'menu');
+        if (this.options.className) {
+            ul.classList.add(...this.options.className.split(/\s+/).filter(Boolean));
+        }
+        ul.style.width = typeof this.options.width === 'number'
+            ? `${this.options.width}px`
+            : this.options.width ?? '200px';
         ul.style.display = 'none';
 
         items.forEach(item => {
             if (item.separator) {
                 const sep = document.createElement('li');
                 sep.className = 'k-dropdown-separator';
+                sep.setAttribute('role', 'separator');
                 ul.appendChild(sep);
                 return;
             }
 
             const li = document.createElement('li');
             li.className = 'k-dropdown-item';
-            if (item.disabled) li.classList.add('k-dropdown-item--disabled');
-            if (item.submenu && item.submenu.length > 0) li.classList.add('k-dropdown-item--has-submenu');
+            li.setAttribute('role', 'menuitem');
+            li.tabIndex = -1;
+            if (item.disabled) {
+                li.classList.add('k-dropdown-item--disabled');
+                li.setAttribute('aria-disabled', 'true');
+            }
+            if (item.submenu && item.submenu.length > 0) {
+                li.classList.add('k-dropdown-item--has-submenu');
+                li.setAttribute('aria-haspopup', 'menu');
+                li.setAttribute('aria-expanded', 'false');
+            }
 
             if (item.icon) {
                 const iconWrap = document.createElement('span');
@@ -106,16 +132,37 @@ export class DropdownMenu {
                 subMenu.classList.add('k-dropdown-submenu');
                 document.body.appendChild(subMenu);
 
+                const openSubmenu = () => {
+                    this.openSubmenuCount++;
+                    subMenu.style.display = 'block';
+                    li.setAttribute('aria-expanded', 'true');
+                    this.positionSubmenu(li, subMenu);
+                };
+
                 this.bind(li, 'mouseenter', () => {
                     this.clearHoverTimeout(li);
                     if (item.disabled) return;
-                    this.openSubmenuCount++;
-                    subMenu.style.display = 'block';
-                    this.positionSubmenu(li, subMenu);
+                    openSubmenu();
                 });
 
                 this.bind(li, 'mouseleave', () => {
                     this.scheduleSubmenuClose(subMenu, li);
+                });
+
+                this.bind(li, 'keydown', (e: Event) => {
+                    const key = (e as KeyboardEvent).key;
+                    if (item.disabled) return;
+                    if (key === 'Enter' || key === ' ' || key === 'ArrowRight') {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        openSubmenu();
+                        subMenu.querySelector<HTMLElement>('[role="menuitem"]')?.focus();
+                    } else if (key === 'ArrowLeft') {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        subMenu.style.display = 'none';
+                        li.setAttribute('aria-expanded', 'false');
+                    }
                 });
 
                 this.bind(subMenu, 'mouseenter', () => {
@@ -133,12 +180,59 @@ export class DropdownMenu {
                     this.options.onSelect?.(item);
                     this.close();
                 });
+
+                this.bind(li, 'keydown', (e: Event) => {
+                    const key = (e as KeyboardEvent).key;
+                    if (key !== 'Enter' && key !== ' ') return;
+                    e.preventDefault();
+                    e.stopPropagation();
+                    li.click();
+                });
             }
 
             ul.appendChild(li);
         });
 
+        this.bind(ul, 'keydown', (e: Event) => {
+            this.handleMenuKeydown(e as KeyboardEvent, ul);
+        });
+
         return ul;
+    }
+
+    private handleMenuKeydown(e: KeyboardEvent, menu: HTMLElement) {
+        const items = Array.from(
+            menu.querySelectorAll<HTMLElement>(':scope > [role="menuitem"]:not([aria-disabled="true"])')
+        );
+        if (items.length === 0) return;
+        const currentIndex = items.indexOf(document.activeElement as HTMLElement);
+
+        switch (e.key) {
+            case 'ArrowDown':
+                e.preventDefault();
+                items[(currentIndex + 1 + items.length) % items.length]?.focus();
+                break;
+            case 'ArrowUp':
+                e.preventDefault();
+                items[(currentIndex <= 0 ? items.length - 1 : currentIndex - 1)]?.focus();
+                break;
+            case 'Home':
+                e.preventDefault();
+                items[0]?.focus();
+                break;
+            case 'End':
+                e.preventDefault();
+                items[items.length - 1]?.focus();
+                break;
+            case 'Escape':
+                e.preventDefault();
+                this.close();
+                this.triggerEl.focus();
+                break;
+            case 'Tab':
+                this.close();
+                break;
+        }
     }
 
     private clearHoverTimeout(li: HTMLElement) {
@@ -153,6 +247,7 @@ export class DropdownMenu {
         const timeoutId = setTimeout(() => {
             this.openSubmenuCount = Math.max(0, this.openSubmenuCount - 1);
             subMenu.style.display = 'none';
+            li.setAttribute('aria-expanded', 'false');
         }, 150);
         (li as any).__hoverTimeout = timeoutId;
     }
@@ -195,21 +290,6 @@ export class DropdownMenu {
             }
         });
 
-        this.bind(document, 'wheel', (e: Event) => {
-            if (!this.isOpen) return;
-            const target = e.target as HTMLElement;
-            if (!target.closest?.('.k-dropdown-menu')) {
-                e.preventDefault();
-            }
-        }, { passive: false });
-
-        this.bind(document, 'touchmove', (e: Event) => {
-            if (!this.isOpen) return;
-            const target = e.target as HTMLElement;
-            if (!target.closest?.('.k-dropdown-menu')) {
-                e.preventDefault();
-            }
-        }, { passive: false });
     }
 
     private positionMenu() {
@@ -245,6 +325,29 @@ export class DropdownMenu {
         this.menuEl.style.left = `${left}px`;
     }
 
+    /** Positions the menu at a point in viewport coordinates. */
+    private positionMenuAt(x: number, y: number) {
+        const margin = 8;
+        const scrollX = window.scrollX;
+        const scrollY = window.scrollY;
+        const menuWidth = this.menuEl.offsetWidth;
+        const menuHeight = this.menuEl.offsetHeight;
+
+        let left = x + scrollX;
+        let top = y + scrollY;
+
+        if (x + menuWidth + margin > window.innerWidth) {
+            left = Math.max(scrollX + margin, scrollX + window.innerWidth - menuWidth - margin);
+        }
+        if (y + menuHeight + margin > window.innerHeight) {
+            top = Math.max(scrollY + margin, scrollY + window.innerHeight - menuHeight - margin);
+        }
+
+        this.menuEl.style.position = 'absolute';
+        this.menuEl.style.top = `${top}px`;
+        this.menuEl.style.left = `${left}px`;
+    }
+
     private positionSubmenu(li: HTMLElement, subMenu: HTMLElement) {
         const parentMenu = li.closest('.k-dropdown-menu') as HTMLElement;
         if (!parentMenu) return;
@@ -271,18 +374,47 @@ export class DropdownMenu {
         if (this.isOpen) return;
         this.isOpen = true;
         this.menuEl.style.display = 'block';
-        this.positionMenu();
+        if (this.openPosition) {
+            this.positionMenuAt(this.openPosition.x, this.openPosition.y);
+        } else {
+            this.positionMenu();
+        }
+        this.triggerEl.setAttribute('aria-expanded', 'true');
+        if (this.options.trigger === 'click') {
+            requestAnimationFrame(() => {
+                this.menuEl.querySelector<HTMLElement>('[role="menuitem"]:not([aria-disabled="true"])')?.focus();
+            });
+        }
         this.options.onOpen?.();
+    }
+
+    /**
+     * Opens the menu at a point in viewport coordinates. Useful for context
+     * menus and other pointer-driven menus that are not anchored to a trigger.
+     */
+    public openAt(x: number, y: number) {
+        this.openPosition = { x, y };
+        if (this.isOpen) {
+            this.positionMenuAt(x, y);
+            return;
+        }
+        this.open();
     }
 
     public close() {
         if (!this.isOpen) return;
         this.isOpen = false;
+        this.openPosition = null;
         this.closeAllSubmenus();
         this.menuEl.style.display = 'none';
+        this.triggerEl.setAttribute('aria-expanded', 'false');
         this.hoverTimeouts.forEach(t => clearTimeout(t));
         this.hoverTimeouts = [];
         this.options.onClose?.();
+    }
+
+    public getMenuElement(): HTMLElement {
+        return this.menuEl;
     }
 
     public toggle() {

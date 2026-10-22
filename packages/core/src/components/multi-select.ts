@@ -1,4 +1,6 @@
 import '../styles/multi-select.css';
+import { createId } from '../utils/id';
+import { t } from '../i18n';
 
 export interface MultiSelectOption {
     id: string | number;
@@ -16,9 +18,11 @@ export interface MultiSelectOptions {
     loading?: boolean;
     onChange?: (value: MultiSelectOption[]) => void;
     onSearch?: (query: string) => void;
+    /** BCP-47 locale used for built-in UI strings. */
+    locale?: string;
 }
 
-const CLOSE_ICON = `<svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg>`;
+const CLOSE_ICON = `<svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg>`;
 
 export class MultiSelect {
     private container: HTMLElement;
@@ -35,6 +39,9 @@ export class MultiSelect {
     private popupEl?: HTMLDivElement;
     private listEl?: HTMLUListElement;
 
+    private readonly listboxId = createId('k-ms-list');
+    private activeIndex = -1;
+
     private documentClickHandler: (e: MouseEvent) => void;
 
     constructor(element: HTMLElement | string, options: MultiSelectOptions) {
@@ -42,7 +49,10 @@ export class MultiSelect {
         if (!target) throw new Error('[Kyokusu UI] Target element for MultiSelect not found');
 
         this.container = target as HTMLElement;
-        this.options = { placeholder: 'Select options', ...options };
+        this.options = {
+            ...options,
+            placeholder: options.placeholder ?? t(options.locale, 'selectPlaceholder')
+        };
         
         this.normalizeOptions();
         this.normalizeValue();
@@ -101,7 +111,7 @@ export class MultiSelect {
         this.wrapperEl = this.createEl('div', 'k-multiselect-wrapper');
 
         if (this.options.label) {
-            const id = this.options.id || `k-ms-${Math.random().toString(36).slice(2, 9)}`;
+            const id = this.options.id || createId('k-ms');
             this.options.id = id;
             this.wrapperEl.appendChild(this.createEl('label', 'k-multiselect-label', {
                 htmlFor: id, textContent: this.options.label
@@ -122,12 +132,19 @@ export class MultiSelect {
         this.inputEl = this.createEl('input', 'k-multiselect-input', {
             id: this.options.id || '',
             type: 'text',
-            disabled: !!this.options.disabled
+            disabled: !!this.options.disabled,
+            role: 'combobox',
+            'aria-haspopup': 'listbox',
+            'aria-expanded': 'false',
+            'aria-controls': this.listboxId,
+            'aria-autocomplete': 'list'
         });
+        if (this.options.disabled) this.inputEl.setAttribute('aria-disabled', 'true');
         this.updateInputPlaceholder();
 
         this.inputEl.addEventListener('input', (e) => {
             this.searchQuery = (e.target as HTMLInputElement).value;
+            this.activeIndex = 0;
             if (this.options.onSearch) this.options.onSearch(this.searchQuery);
             if (this.isOpen) this.renderList();
         });
@@ -135,7 +152,9 @@ export class MultiSelect {
         this.inputEl.addEventListener('keydown', (e) => {
             if (e.key === 'Backspace' && !this.searchQuery && this.value.length > 0) {
                 this.removeOption(this.value.length - 1);
+                return;
             }
+            this.handleListKeydown(e);
         });
 
         this.inputEl.addEventListener('focus', () => {
@@ -170,8 +189,10 @@ export class MultiSelect {
             const tag = this.createEl('div', 'k-multiselect-tag');
             tag.appendChild(this.createEl('span', '', { textContent: item.label }));
             
-            const closeBtn = this.createEl('button', 'k-multiselect-tag-close', { 
-                type: 'button', innerHTML: CLOSE_ICON 
+            const closeBtn = this.createEl('button', 'k-multiselect-tag-close', {
+                type: 'button',
+                innerHTML: CLOSE_ICON,
+                'aria-label': t(this.options.locale, 'removeTag', { label: item.label })
             });
             closeBtn.addEventListener('click', (e) => {
                 e.stopPropagation();
@@ -185,7 +206,13 @@ export class MultiSelect {
 
     private openDropdown() {
         if (this.options.disabled) return;
+        if (this.isOpen) {
+            this.inputEl?.focus();
+            return;
+        }
         this.isOpen = true;
+        this.activeIndex = -1;
+        this.inputEl.setAttribute('aria-expanded', 'true');
         this.triggerEl.classList.add('k-multiselect-trigger--focus');
         this.renderPopup();
         this.inputEl?.focus();
@@ -193,7 +220,10 @@ export class MultiSelect {
 
     private closeDropdown() {
         this.isOpen = false;
+        this.activeIndex = -1;
         this.searchQuery = '';
+        this.inputEl.setAttribute('aria-expanded', 'false');
+        this.inputEl.removeAttribute('aria-activedescendant');
         if (this.inputEl) this.inputEl.value = '';
         this.triggerEl.classList.remove('k-multiselect-trigger--focus');
         
@@ -215,6 +245,87 @@ export class MultiSelect {
         }
     }
 
+    private optionId(index: number): string {
+        return `${this.listboxId}-option-${index}`;
+    }
+
+    private updateActiveOption() {
+        const options = this.listEl?.querySelectorAll<HTMLElement>('.k-multiselect-item');
+        options?.forEach((el, index) => {
+            el.classList.toggle('k-multiselect-item--active', index === this.activeIndex);
+        });
+
+        const activeId = this.activeIndex >= 0 ? this.optionId(this.activeIndex) : '';
+        if (activeId) this.inputEl.setAttribute('aria-activedescendant', activeId);
+        else this.inputEl.removeAttribute('aria-activedescendant');
+    }
+
+    private moveActive(delta: number) {
+        const items = this.filteredOptions;
+        if (items.length === 0) {
+            this.activeIndex = -1;
+            this.updateActiveOption();
+            return;
+        }
+        this.activeIndex = (this.activeIndex + delta + items.length) % items.length;
+        this.updateActiveOption();
+        const active = this.listEl?.querySelector<HTMLElement>('.k-multiselect-item--active');
+        active?.scrollIntoView?.({ block: 'nearest' });
+    }
+
+    private handleListKeydown(e: KeyboardEvent) {
+        switch (e.key) {
+            case 'ArrowDown':
+                e.preventDefault();
+                if (!this.isOpen) {
+                    this.openDropdown();
+                    this.activeIndex = 0;
+                    this.updateActiveOption();
+                } else {
+                    this.moveActive(1);
+                }
+                break;
+            case 'ArrowUp':
+                e.preventDefault();
+                if (!this.isOpen) {
+                    this.openDropdown();
+                    this.activeIndex = Math.max(this.filteredOptions.length - 1, 0);
+                    this.updateActiveOption();
+                } else {
+                    this.moveActive(-1);
+                }
+                break;
+            case 'Home':
+                if (!this.isOpen) return;
+                e.preventDefault();
+                this.activeIndex = 0;
+                this.updateActiveOption();
+                break;
+            case 'End':
+                if (!this.isOpen) return;
+                e.preventDefault();
+                this.activeIndex = Math.max(this.filteredOptions.length - 1, 0);
+                this.updateActiveOption();
+                break;
+            case 'Enter':
+                if (this.isOpen && this.activeIndex >= 0) {
+                    e.preventDefault();
+                    const option = this.filteredOptions[this.activeIndex];
+                    if (option) this.selectItem(option);
+                }
+                break;
+            case 'Escape':
+                if (this.isOpen) {
+                    e.preventDefault();
+                    this.closeDropdown();
+                }
+                break;
+            case 'Tab':
+                if (this.isOpen) this.closeDropdown();
+                break;
+        }
+    }
+
     private renderPopup() {
         if (this.popupEl && this.popupEl.parentNode) {
             this.popupEl.parentNode.removeChild(this.popupEl);
@@ -225,7 +336,10 @@ export class MultiSelect {
         this.popupEl.style.transform = 'translateY(-8px)';
         this.popupEl.style.transition = 'all 0.2s ease';
 
-        this.listEl = this.createEl('ul', 'k-multiselect-list');
+        this.listEl = this.createEl('ul', 'k-multiselect-list', {
+            role: 'listbox',
+            id: this.listboxId
+        });
         this.renderList();
         this.popupEl.appendChild(this.listEl);
 
@@ -246,19 +360,40 @@ export class MultiSelect {
         const items = this.filteredOptions;
 
         if (items.length === 0 && !this.options.loading) {
-            const msg = this.searchQuery ? 'Ничего не найдено' : 'Начните вводить...';
-            this.listEl.appendChild(this.createEl('li', 'k-multiselect-empty', { textContent: msg }));
+            const msg = this.searchQuery
+                ? t(this.options.locale, 'noResults')
+                : t(this.options.locale, 'startTyping');
+            this.listEl.appendChild(this.createEl('li', 'k-multiselect-empty', {
+                textContent: msg,
+                role: 'presentation'
+            }));
+            this.activeIndex = -1;
+            this.updateActiveOption();
             return;
         }
 
-        items.forEach(item => {
-            const li = this.createEl('li', 'k-multiselect-item', { textContent: item.label });
+        if (this.activeIndex >= items.length) this.activeIndex = items.length > 0 ? 0 : -1;
+
+        items.forEach((item, index) => {
+            const li = this.createEl('li', 'k-multiselect-item', {
+                id: this.optionId(index),
+                textContent: item.label,
+                role: 'option',
+                'aria-selected': 'false'
+            });
+            if (index === this.activeIndex) li.classList.add('k-multiselect-item--active');
             li.addEventListener('click', (e) => {
                 e.stopPropagation();
                 this.selectItem(item);
             });
+            li.addEventListener('mousemove', () => {
+                this.activeIndex = index;
+                this.updateActiveOption();
+            });
             this.listEl!.appendChild(li);
         });
+
+        this.updateActiveOption();
     }
 
     private selectItem(option: MultiSelectOption) {
@@ -266,6 +401,7 @@ export class MultiSelect {
         
         this.value.push(option);
         this.searchQuery = '';
+        this.activeIndex = -1;
         if (this.inputEl) this.inputEl.value = '';
         
         this.renderTags();
@@ -309,6 +445,8 @@ export class MultiSelect {
         if (newOptions.disabled !== undefined) {
             this.triggerEl.classList.toggle('k-multiselect-trigger--disabled', !!newOptions.disabled);
             this.inputEl.disabled = !!newOptions.disabled;
+            this.inputEl.setAttribute('aria-disabled', String(!!newOptions.disabled));
+            if (newOptions.disabled && this.isOpen) this.closeDropdown();
         }
         
         if (newOptions.error !== undefined) {

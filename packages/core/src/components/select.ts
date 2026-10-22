@@ -1,4 +1,5 @@
 import '../styles/select.css';
+import { createId } from '../utils/id';
 
 export interface SelectOption {
     value: string;
@@ -31,7 +32,7 @@ export class Select {
         this.container = target as HTMLElement;
         this.options = options;
         this.value = options.value ?? '';
-        this.id = options.id ?? `k-select-${Math.random().toString(36).substring(2, 9)}`;
+        this.id = options.id ?? createId('k-select');
 
         this.mount();
     }

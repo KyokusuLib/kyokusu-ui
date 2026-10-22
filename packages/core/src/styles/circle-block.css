@@ -8,7 +8,7 @@
 
 .k-circle-block-text {
     font-weight: 600;
-    color: #ffffff;
+    color: var(--k-white);
     line-height: 1;
     letter-spacing: 0.5px;
 }
@@ -17,7 +17,7 @@
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    color: #ffffff;
+    color: var(--k-white);
 }
 
 .k-circle-block-icon svg {

@@ -1,6 +1,7 @@
 import '../styles/modal-confirm.css';
 import '../styles/modal-window.css';
 import { ModalWindow } from './modal-window';
+import { t, DEFAULT_LOCALE } from '../i18n';
 
 export interface ModalConfirmOptions {
 	title?: string;
@@ -10,29 +11,32 @@ export interface ModalConfirmOptions {
 	onConfirm?: () => void;
 	onCancel?: () => void;
 	onClose?: () => void;
+	/** BCP-47 locale used for built-in UI strings. */
+	locale?: string;
 }
 
 export class ModalConfirm {
 	private modal: ModalWindow;
 	private options: Required<ModalConfirmOptions>;
 
-	private static readonly DEFAULTS: Required<ModalConfirmOptions> = {
-		title: 'Confirmation',
-		description: 'Are you sure you want to proceed?',
-		confirmText: 'Yes',
-		cancelText: 'Cancel',
-		onConfirm: () => {},
-		onCancel: () => {},
-		onClose: () => {},
-	};
-
 	constructor(options: ModalConfirmOptions = {}) {
-		this.options = { ...ModalConfirm.DEFAULTS, ...options };
+		const locale = options.locale ?? DEFAULT_LOCALE;
+		this.options = {
+			locale,
+			title: options.title ?? t(locale, 'confirmTitle'),
+			description: options.description ?? t(locale, 'confirmDescription'),
+			confirmText: options.confirmText ?? t(locale, 'confirmText'),
+			cancelText: options.cancelText ?? t(locale, 'cancelText'),
+			onConfirm: options.onConfirm ?? (() => {}),
+			onCancel: options.onCancel ?? (() => {}),
+			onClose: options.onClose ?? (() => {}),
+		};
 
 		this.modal = new ModalWindow({
 			title: this.options.title,
-			width: 'max-w-sm',
+			width: '24rem',
 			centerTitle: true,
+			locale,
 			content: this.buildContent(),
 			footer: this.buildFooter(),
 			onClose: () => {

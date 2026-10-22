@@ -1,4 +1,5 @@
 import '../styles/image-picker.css';
+import { t } from '../i18n';
 
 export type ImagePickerSize = 'sm' | 'md' | 'lg' | number;
 export type ImagePickerBorder = 'solid' | 'dashed' | 'none';
@@ -15,6 +16,8 @@ export interface ImagePickerOptions {
     disabled?: boolean;
     onChange?: (file: File | null) => void;
     onError?: (message: string) => void;
+    /** BCP-47 locale used for built-in UI strings. */
+    locale?: string;
 }
 
 export class ImagePicker {
@@ -42,9 +45,9 @@ export class ImagePicker {
             shape: 'square',
             accept: 'image/*',
             maxSize: 5,
-            placeholder: 'Нажмите или перетащите изображение',
             disabled: false,
-            ...options
+            ...options,
+            placeholder: options.placeholder ?? t(options.locale, 'imagePlaceholder')
         };
 
         this.mount();
@@ -80,7 +83,7 @@ export class ImagePicker {
         this.element.style.borderRadius = this.options.shape === 'circle' ? '50%' : '8px';
 
         if (this.options.border !== 'none') {
-            this.element.style.border = `2px ${this.options.border} #d4d4d8`;
+            this.element.style.border = `2px ${this.options.border} var(--k-zinc-300)`;
         }
 
         // Hidden input
@@ -186,13 +189,13 @@ export class ImagePicker {
         if (this.options.disabled) return;
 
         if (!file.type.startsWith('image/')) {
-            this.options.onError?.('Выберите файл изображения');
+            this.options.onError?.(t(this.options.locale, 'invalidImageType'));
             return;
         }
 
         const maxBytes = (this.options.maxSize || 5) * 1024 * 1024;
         if (file.size > maxBytes) {
-            this.options.onError?.(`Файл слишком большой. Максимум: ${this.options.maxSize} МБ`);
+            this.options.onError?.(t(this.options.locale, 'fileTooLarge', { size: this.options.maxSize ?? 5 }));
             return;
         }
 

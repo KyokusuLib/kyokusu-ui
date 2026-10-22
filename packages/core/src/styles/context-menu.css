@@ -1,0 +1,9 @@
+/* ContextMenu — additional surface rules; the item styles come from DropdownMenu. */
+
+.k-context-menu {
+    min-width: 180px;
+    max-height: calc(100vh - 16px);
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    transform-origin: top left;
+}

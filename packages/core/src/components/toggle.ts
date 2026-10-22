@@ -1,4 +1,5 @@
 import '../styles/toggle.css'
+import { createId } from '../utils/id';
 
 export interface ToggleOptions {
     checked?: boolean;
@@ -31,7 +32,7 @@ export class Toggle {
         this.options = options;
         this.checked = options.checked ?? false;
         this.disabled = options.disabled ?? false;
-        this.id = options.id ?? `k-toggle-${Math.random().toString(36).substring(2, 9)}`;
+        this.id = options.id ?? createId('k-toggle');
 
         this.mount();
     }

@@ -1,4 +1,5 @@
 import '../styles/tooltip.css';
+import { createId } from '../utils/id';
 
 export interface TooltipOptions {
     text: string;
@@ -12,9 +13,12 @@ export class Tooltip {
     private wrapperEl!: HTMLDivElement;
     private contentEl?: HTMLDivElement;
     private timeout: ReturnType<typeof setTimeout> | null = null;
+    private readonly tooltipId = createId('k-tooltip');
 
     private mouseEnterHandler = () => this.show();
     private mouseLeaveHandler = () => this.hide();
+    private focusInHandler = () => this.show();
+    private focusOutHandler = () => this.hide();
 
     constructor(element: HTMLElement | string, options: TooltipOptions) {
         const target = typeof element === 'string' ? document.querySelector(element) : element;
@@ -41,6 +45,11 @@ export class Tooltip {
 
         this.wrapperEl.addEventListener('mouseenter', this.mouseEnterHandler);
         this.wrapperEl.addEventListener('mouseleave', this.mouseLeaveHandler);
+        this.wrapperEl.addEventListener('focusin', this.focusInHandler);
+        this.wrapperEl.addEventListener('focusout', this.focusOutHandler);
+
+        // Associate the tooltip with the wrapped control for screen readers.
+        this.container.setAttribute('aria-describedby', this.tooltipId);
     }
 
     public show() {
@@ -48,6 +57,8 @@ export class Tooltip {
             if (!this.contentEl) {
                 this.contentEl = document.createElement('div');
                 this.contentEl.className = `k-tooltip-content k-tooltip-content--${this.options.position}`;
+                this.contentEl.id = this.tooltipId;
+                this.contentEl.setAttribute('role', 'tooltip');
                 
                 const box = document.createElement('div');
                 box.className = 'k-tooltip-box';
@@ -98,6 +109,10 @@ export class Tooltip {
     public unmount() {
         this.wrapperEl.removeEventListener('mouseenter', this.mouseEnterHandler);
         this.wrapperEl.removeEventListener('mouseleave', this.mouseLeaveHandler);
+        this.wrapperEl.removeEventListener('focusin', this.focusInHandler);
+        this.wrapperEl.removeEventListener('focusout', this.focusOutHandler);
+        this.container.removeAttribute('aria-describedby');
+        this.hide();
         if (this.wrapperEl.parentNode) {
             this.wrapperEl.parentNode.insertBefore(this.container, this.wrapperEl);
             this.wrapperEl.parentNode.removeChild(this.wrapperEl);

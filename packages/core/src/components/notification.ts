@@ -1,4 +1,6 @@
 import '../styles/notification.css';
+import { createId } from '../utils/id';
+import { t } from '../i18n';
 
 export interface NotificationPayload {
     title: string;
@@ -12,10 +14,10 @@ export interface NotificationItem extends NotificationPayload {
 }
 
 const ICONS = {
-    success: `<svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>`,
-    error: `<svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>`,
-    warning: `<svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" /></svg>`,
-    info: `<svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>`
+    success: `<svg width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>`,
+    error: `<svg width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>`,
+    warning: `<svg width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" /></svg>`,
+    info: `<svg width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>`
 };
 
 const CLOSE_ICON = `<svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg>`;
@@ -27,12 +29,20 @@ export class NotificationManager {
     // Throttle duplicate notifications
     private duplicateMap = new Map<string, { timer: ReturnType<typeof setTimeout> | null, next: NotificationPayload | null }>();
     private readonly THROTTLE_DELAY = 3000;
+    private readonly locale?: string;
 
-    constructor(position: 'top-right' | 'top-left' | 'bottom-right' | 'bottom-left' = 'top-right') {
+    constructor(
+        position: 'top-right' | 'top-left' | 'bottom-right' | 'bottom-left' = 'top-right',
+        locale?: string
+    ) {
+        this.locale = locale;
         let container = document.querySelector('.k-notification-container') as HTMLDivElement;
         if (!container) {
             container = document.createElement('div');
             container.className = `k-notification-container k-notification-container--${position}`;
+            container.setAttribute('role', 'region');
+            container.setAttribute('aria-label', t(locale, 'notifications'));
+            container.setAttribute('aria-live', 'polite');
             document.body.appendChild(container);
         }
         this.container = container;
@@ -71,13 +81,15 @@ export class NotificationManager {
     }
 
     private pushNotification(payload: NotificationPayload) {
-        const id = Date.now().toString() + Math.random().toString(36).substring(2, 9);
+        const id = createId('k-notification');
         const duration = payload.duration !== undefined ? payload.duration : 5000;
 
         const el = document.createElement('div');
         el.className = 'k-notification-item k-notification-enter-from';
         
         const type = payload.type || 'info';
+        el.setAttribute('role', type === 'error' ? 'alert' : 'status');
+        el.setAttribute('aria-atomic', 'true');
         
         const iconDiv = document.createElement('div');
         iconDiv.className = `k-notification-icon k-notification-icon--${type}`;
@@ -101,8 +113,10 @@ export class NotificationManager {
         const closeDiv = document.createElement('div');
         closeDiv.className = 'k-notification-close-wrapper';
         
-        const closeBtn = document.createElement('div');
+        const closeBtn = document.createElement('button');
+        closeBtn.type = 'button';
         closeBtn.className = 'k-notification-close';
+        closeBtn.setAttribute('aria-label', t(this.locale, 'closeNotification'));
         closeBtn.innerHTML = CLOSE_ICON;
         closeBtn.addEventListener('click', (e) => {
             e.stopPropagation();
@@ -208,5 +222,28 @@ export class NotificationManager {
     }
 }
 
-// Singleton export for ease of use in plain JS environments
-export const notificationManager = new NotificationManager();
+let notificationManagerInstance: NotificationManager | null = null;
+
+/**
+ * Returns the shared notification manager, creating it on first use.
+ * The manager touches `document`, so it must not be constructed at import
+ * time (that would break SSR and Node-based tooling).
+ */
+export function getNotificationManager(): NotificationManager {
+    if (!notificationManagerInstance) {
+        notificationManagerInstance = new NotificationManager();
+    }
+    return notificationManagerInstance;
+}
+
+/**
+ * Backwards-compatible lazy singleton. Every property access is forwarded to
+ * the manager returned by {@link getNotificationManager}.
+ */
+export const notificationManager: NotificationManager = new Proxy({} as NotificationManager, {
+    get(_target, property) {
+        const manager = getNotificationManager() as unknown as Record<PropertyKey, unknown>;
+        const value = manager[property];
+        return typeof value === 'function' ? value.bind(manager) : value;
+    },
+});

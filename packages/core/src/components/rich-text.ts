@@ -1,4 +1,5 @@
 import '../styles/rich-text.css';
+import { createId } from '../utils/id';
 
 export interface EditorOptions {
     value?: string;
@@ -36,7 +37,7 @@ export class RichText {
         this.container = target as HTMLElement;
         this.options = options;
         this.value = options.value ?? '';
-        this.id = options.id ?? `k-editor-${Math.random().toString(36).substring(2, 9)}`;
+        this.id = options.id ?? createId('k-editor');
 
         this.mount();
     }

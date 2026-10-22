@@ -1,4 +1,5 @@
 import '../styles/spinner.css';
+import { t } from '../i18n';
 
 export type SpinnerSize = 'sm' | 'md' | 'lg' | 'xl' | number;
 export type SpinnerVariant = 'default' | 'primary' | 'secondary';
@@ -6,6 +7,8 @@ export type SpinnerVariant = 'default' | 'primary' | 'secondary';
 export interface SpinnerOptions {
     size?: SpinnerSize;
     variant?: SpinnerVariant;
+    /** BCP-47 locale used for built-in UI strings. */
+    locale?: string;
 }
 
 export class Spinner {
@@ -33,7 +36,7 @@ export class Spinner {
         this.element = document.createElement('span');
         this.element.className = 'k-spinner';
         this.element.setAttribute('role', 'status');
-        this.element.setAttribute('aria-label', 'Loading');
+        this.element.setAttribute('aria-label', t(this.options.locale, 'loading'));
 
         if (typeof this.options.size === 'string') {
             this.element.classList.add(`k-spinner--${this.options.size}`);

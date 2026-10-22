@@ -1,4 +1,5 @@
 import '../styles/input.css';
+import { createId } from '../utils/id';
 
 export interface InputOptions {
     value?: string;
@@ -41,7 +42,7 @@ export class Input {
         this.container = target as HTMLElement;
         this.options = { type: 'text', ...options };
         this.value = options.value ?? '';
-        this.id = options.id ?? `k-input-${Math.random().toString(36).substring(2, 9)}`;
+        this.id = options.id ?? createId('k-input');
 
         this.mount();
     }

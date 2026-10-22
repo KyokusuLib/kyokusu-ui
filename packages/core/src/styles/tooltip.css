@@ -6,7 +6,7 @@
 
 .k-tooltip-content {
     position: absolute;
-    z-index: 100;
+    z-index: var(--k-z-overlay);
     white-space: nowrap;
     pointer-events: none;
     opacity: 0;
@@ -58,8 +58,8 @@
 }
 
 .k-tooltip-box {
-    background-color: #ffffff;
-    color: #18181b;
+    background-color: var(--k-white);
+    color: var(--k-zinc-900);
     font-size: 10px;
     font-weight: 900;
     text-transform: uppercase;
@@ -67,15 +67,15 @@
     padding: 6px 12px;
     border-radius: 8px;
     box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
-    border: 1px solid #18181b;
+    border: 1px solid var(--k-zinc-900);
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     position: relative;
 }
 
 .dark .k-tooltip-box {
-    background-color: #3f3f46;
-    color: #ffffff;
+    background-color: var(--k-zinc-700);
+    color: var(--k-white);
     border-color: rgba(255, 255, 255, 0.05);
 }
 
@@ -128,7 +128,7 @@
 
 .k-ttip-content {
 	position: fixed;
-	z-index: 100;
+	z-index: var(--k-z-overlay);
 	pointer-events: none;
 	white-space: nowrap;
 	opacity: 0;
@@ -140,8 +140,8 @@
 }
 
 .k-ttip-box {
-	background-color: #27272a;
-	color: #ffffff;
+	background-color: var(--k-zinc-800);
+	color: var(--k-white);
 	font-size: 14px;
 	font-weight: 700;
 	line-height: 1;
@@ -152,7 +152,7 @@
 }
 
 .dark .k-ttip-box {
-	background-color: #3f3f46;
+	background-color: var(--k-zinc-700);
 }
 
 .k-ttip-arrow {

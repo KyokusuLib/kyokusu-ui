@@ -1,4 +1,6 @@
 import '../styles/date-picker.css';
+import { t } from '../i18n';
+import { createId } from '../utils/id';
 
 export interface DatePickerOptions {
     value?: string;
@@ -11,10 +13,6 @@ export interface DatePickerOptions {
     type?: 'date' | 'year';
     onChange?: (value: string) => void;
 }
-
-const toISODate = (d: Date): string => {
-    return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
-};
 
 const ICONS = {
     calendar: `<svg width="18" height="18" viewBox="0 0 256 256" fill="currentColor"><path d="M208,32H184V24a8,8,0,0,0-16,0v8H88V24a8,8,0,0,0-16,0v8H48A16,16,0,0,0,32,48V208a16,16,0,0,0,16,16H208a16,16,0,0,0,16-16V48A16,16,0,0,0,208,32ZM72,48v8a8,8,0,0,0,16,0V48h80v8a8,8,0,0,0,16,0V48h24V80H48V48ZM208,208H48V96H208V208Z"></path></svg>`,
@@ -106,7 +104,7 @@ export class DatePicker {
         this.wrapperEl = this.createEl('div', 'k-datepicker-wrapper');
         
         if (this.options.label) {
-            const id = this.options.id || `k-dp-${Math.random().toString(36).slice(2, 9)}`;
+            const id = this.options.id || createId('k-dp');
             this.options.id = id;
             this.wrapperEl.appendChild(this.createEl('label', 'k-datepicker-label', {
                 htmlFor: id, textContent: this.options.label
@@ -121,7 +119,7 @@ export class DatePicker {
             readOnly: true,
             disabled: !!this.options.disabled,
             value: this.getFormattedValue(),
-            placeholder: this.options.placeholder || (this.options.locale?.startsWith('ru') ? 'ДД.ММ.ГГГГ' : 'DD.MM.YYYY')
+            placeholder: this.options.placeholder ?? t(this.options.locale, 'datePlaceholder')
         });
 
         if (this.options.disabled) this.inputEl.classList.add('k-datepicker-input--disabled');
@@ -201,7 +199,7 @@ export class DatePicker {
             
             const monthName = this.viewMode === 'days' 
                 ? new Intl.DateTimeFormat(this.options.locale, { month: 'long' }).format(this.viewDate)
-                : (this.options.locale?.startsWith('ru') ? 'Выберите год' : 'Select year');
+                : t(this.options.locale, 'selectYear');
             
             titleEl.appendChild(this.createEl('span', 'k-datepicker-month', { 
                 textContent: monthName.charAt(0).toUpperCase() + monthName.slice(1)
@@ -284,7 +282,7 @@ export class DatePicker {
             this.popupEl.appendChild(bodyEl);
 
             if (selectedYearEl) {
-                setTimeout(() => selectedYearEl!.scrollIntoView({ block: 'center' }), 10);
+                setTimeout(() => selectedYearEl?.scrollIntoView?.({ block: 'center' }), 10);
             }
         } else {
             const yearsEl = this.createEl('div', 'k-datepicker-years');
@@ -310,7 +308,7 @@ export class DatePicker {
             this.popupEl.appendChild(yearsEl);
 
             if (selectedYearEl) {
-                setTimeout(() => selectedYearEl!.scrollIntoView({ block: 'center' }), 10);
+                setTimeout(() => selectedYearEl?.scrollIntoView?.({ block: 'center' }), 10);
             }
         }
 

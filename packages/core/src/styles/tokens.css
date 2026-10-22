@@ -1,0 +1,114 @@
+/**
+ * Kyokusu UI design tokens.
+ *
+ * Palette values are intentionally static: components reference them directly,
+ * while semantic tokens are remapped per theme. This keeps every hard-coded
+ * colour in one place and gives consumers a stable surface to build on.
+ */
+
+:root {
+  color-scheme: light;
+
+  /* Palette */
+  --k-white: #ffffff;
+  --k-black: #000000;
+
+  --k-zinc-50: #fafafa;
+  --k-zinc-100: #f4f4f5;
+  --k-zinc-200: #e4e4e7;
+  --k-zinc-300: #d4d4d8;
+  --k-zinc-350: #cbcbce;
+  --k-zinc-400: #a1a1aa;
+  --k-zinc-500: #71717a;
+  --k-zinc-600: #52525b;
+  --k-zinc-700: #3f3f46;
+  --k-zinc-800: #27272a;
+  --k-zinc-900: #18181b;
+  --k-zinc-950: #09090b;
+  --k-neutral-900: #161616;
+
+  --k-red-400: #f87171;
+  --k-red-500: #ef4444;
+  --k-red-600: #dc2626;
+  --k-green-400: #4ade80;
+  --k-blue-100: #dbeafe;
+  --k-blue-400: #60a5fa;
+  --k-blue-500: #3b82f6;
+  --k-blue-900: #1e3a5f;
+  --k-yellow-50: #fefce8;
+  --k-yellow-400: #facc15;
+  --k-yellow-500: #eab308;
+  --k-yellow-600: #ca8a04;
+  --k-orange-500: #ffa500;
+
+  /* Semantic colours (light theme) */
+  --k-color-bg: var(--k-white);
+  --k-color-bg-subtle: var(--k-zinc-50);
+  --k-color-bg-muted: var(--k-zinc-100);
+  --k-color-fg: var(--k-zinc-900);
+  --k-color-fg-muted: var(--k-zinc-500);
+  --k-color-fg-subtle: var(--k-zinc-400);
+  --k-color-border: var(--k-zinc-200);
+  --k-color-border-strong: var(--k-zinc-300);
+  --k-color-primary: var(--k-zinc-900);
+  --k-color-primary-fg: var(--k-white);
+  --k-color-primary-hover: var(--k-zinc-700);
+  --k-color-accent: var(--k-yellow-500);
+  --k-color-accent-fg: var(--k-white);
+  --k-color-accent-hover: var(--k-yellow-600);
+  --k-color-danger: var(--k-red-500);
+  --k-color-danger-fg: var(--k-white);
+  --k-color-danger-hover: var(--k-red-600);
+  --k-color-ring: rgb(24 24 27 / 0.2);
+  --k-color-overlay: rgb(0 0 0 / 0.6);
+
+  /* Typography */
+  --k-font-sans: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto,
+    "Helvetica Neue", Arial, sans-serif;
+  --k-font-mono: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas,
+    "Liberation Mono", monospace;
+
+  /* Radii */
+  --k-radius-sm: 6px;
+  --k-radius-md: 8px;
+  --k-radius-lg: 12px;
+  --k-radius-xl: 16px;
+  --k-radius-full: 9999px;
+
+  /* Elevation */
+  --k-shadow-sm: 0 1px 2px rgb(0 0 0 / 0.05);
+  --k-shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+  --k-shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+  --k-shadow-xl: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 10px 10px -5px rgb(0 0 0 / 0.04);
+
+  /* Motion */
+  --k-duration-fast: 150ms;
+  --k-duration-normal: 200ms;
+  --k-duration-slow: 300ms;
+  --k-ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+
+  /* Stacking order */
+  --k-z-dropdown: 50;
+  --k-z-overlay: 100;
+  --k-z-popover: 9999;
+  --k-z-submenu: 10001;
+}
+
+.dark,
+[data-theme="dark"] {
+  color-scheme: dark;
+
+  --k-color-bg: var(--k-zinc-900);
+  --k-color-bg-subtle: var(--k-zinc-800);
+  --k-color-bg-muted: var(--k-zinc-700);
+  --k-color-fg: var(--k-zinc-100);
+  --k-color-fg-muted: var(--k-zinc-400);
+  --k-color-fg-subtle: var(--k-zinc-500);
+  --k-color-border: var(--k-zinc-800);
+  --k-color-border-strong: var(--k-zinc-700);
+  --k-color-primary: var(--k-white);
+  --k-color-primary-fg: var(--k-zinc-900);
+  --k-color-primary-hover: var(--k-zinc-200);
+  --k-color-ring: rgb(255 255 255 / 0.2);
+  --k-color-overlay: rgb(0 0 0 / 0.6);
+}

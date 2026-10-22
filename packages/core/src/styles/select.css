@@ -4,21 +4,21 @@
   gap: 6px;
   width: 100%;
 
-  --k-select-bg: #ffffff;
-  --k-select-bg-hover: #fafafa;
-  --k-select-bg-disabled: #f4f4f5;
-  --k-select-border: #e4e4e7;
-  --k-select-border-hover: #d4d4d8;
-  --k-select-text: #18181b;
-  --k-select-text-disabled: #a1a1aa;
-  --k-select-placeholder: #a1a1aa;
-  --k-select-label: #18181b;
+  --k-select-bg: var(--k-white);
+  --k-select-bg-hover: var(--k-zinc-50);
+  --k-select-bg-disabled: var(--k-zinc-100);
+  --k-select-border: var(--k-zinc-200);
+  --k-select-border-hover: var(--k-zinc-300);
+  --k-select-text: var(--k-zinc-900);
+  --k-select-text-disabled: var(--k-zinc-400);
+  --k-select-placeholder: var(--k-zinc-400);
+  --k-select-label: var(--k-zinc-900);
   
-  --k-select-dropdown-bg: #ffffff;
-  --k-select-dropdown-border: #e4e4e7;
-  --k-select-option-hover: #f4f4f5;
-  --k-select-option-selected: #18181b;
-  --k-select-option-selected-text: #ffffff;
+  --k-select-dropdown-bg: var(--k-white);
+  --k-select-dropdown-border: var(--k-zinc-200);
+  --k-select-option-hover: var(--k-zinc-100);
+  --k-select-option-selected: var(--k-zinc-900);
+  --k-select-option-selected-text: var(--k-white);
 
   --k-select-radius: 8px;
   --k-select-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
@@ -26,21 +26,21 @@
 }
 
 .dark .k-select-container {
-  --k-select-bg: #18181b;
-  --k-select-bg-hover: #27272a;
-  --k-select-bg-disabled: #27272a;
-  --k-select-border: #3f3f46;
-  --k-select-border-hover: #52525b;
-  --k-select-text: #f4f4f5;
-  --k-select-text-disabled: #52525b;
-  --k-select-placeholder: #71717a;
-  --k-select-label: #ffffff;
+  --k-select-bg: var(--k-zinc-900);
+  --k-select-bg-hover: var(--k-zinc-800);
+  --k-select-bg-disabled: var(--k-zinc-800);
+  --k-select-border: var(--k-zinc-700);
+  --k-select-border-hover: var(--k-zinc-600);
+  --k-select-text: var(--k-zinc-100);
+  --k-select-text-disabled: var(--k-zinc-600);
+  --k-select-placeholder: var(--k-zinc-500);
+  --k-select-label: var(--k-white);
   
-  --k-select-dropdown-bg: #18181b;
-  --k-select-dropdown-border: #3f3f46;
-  --k-select-option-hover: #27272a;
-  --k-select-option-selected: #ffffff;
-  --k-select-option-selected-text: #18181b;
+  --k-select-dropdown-bg: var(--k-zinc-900);
+  --k-select-dropdown-border: var(--k-zinc-700);
+  --k-select-option-hover: var(--k-zinc-800);
+  --k-select-option-selected: var(--k-white);
+  --k-select-option-selected-text: var(--k-zinc-900);
   
   --k-select-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.3);
   --k-select-dropdown-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.5), 0 4px 6px -4px rgba(0, 0, 0, 0.5);
@@ -140,7 +140,7 @@
   top: calc(100% + 6px);
   left: 0;
   right: 0;
-  z-index: 50;
+  z-index: var(--k-z-dropdown);
   background-color: var(--k-select-dropdown-bg);
   border: 1px solid var(--k-select-dropdown-border);
   border-radius: var(--k-select-radius);

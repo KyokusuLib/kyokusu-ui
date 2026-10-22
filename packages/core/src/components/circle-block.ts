@@ -67,11 +67,11 @@ export class CircleBlock {
         this.element.className = 'k-circle-block';
         this.element.style.width = `${size}px`;
         this.element.style.height = `${size}px`;
-        this.element.style.backgroundColor = this.options.bg || '#e4e4e7';
+        this.element.style.backgroundColor = this.options.bg || 'var(--k-zinc-200)';
         this.element.style.borderRadius = '50%';
 
         if (this.options.border) {
-            this.element.style.border = '2px solid #ffffff';
+            this.element.style.border = '2px solid var(--k-white)';
         }
 
         if (this.options.src) {

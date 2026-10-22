@@ -2,12 +2,12 @@
     min-height: 100vh;
     display: flex;
     flex-direction: column;
-    background-color: #fafafa;
+    background-color: var(--k-zinc-50);
     transition: background-color 0.3s ease;
 }
 
 .dark .k-page-layout {
-    background: radial-gradient(at center, #27272a 0%, #09090b 90%);
+    background: radial-gradient(at center, var(--k-zinc-800) 0%, var(--k-zinc-950) 90%);
 }
 
 .k-page-layout-inner {

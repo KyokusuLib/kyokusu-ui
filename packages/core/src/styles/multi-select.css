@@ -6,51 +6,51 @@
     gap: 6px;
     font-family: inherit;
 
-    --k-ms-bg: #ffffff;
-    --k-ms-border: #e4e4e7;
+    --k-ms-bg: var(--k-white);
+    --k-ms-border: var(--k-zinc-200);
     --k-ms-border-focus: rgba(234, 179, 8, 0.5);
     --k-ms-ring: rgba(234, 179, 8, 0.05);
-    --k-ms-text: #18181b;
-    --k-ms-placeholder: #a1a1aa;
-    --k-ms-label: #71717a;
-    --k-ms-disabled-bg: #f4f4f5;
-    --k-ms-error: #ef4444;
+    --k-ms-text: var(--k-zinc-900);
+    --k-ms-placeholder: var(--k-zinc-400);
+    --k-ms-label: var(--k-zinc-500);
+    --k-ms-disabled-bg: var(--k-zinc-100);
+    --k-ms-error: var(--k-red-500);
     
-    --k-ms-tag-bg: #ffffff;
-    --k-ms-tag-border: #e4e4e7;
-    --k-ms-tag-text: #18181b;
-    --k-ms-tag-close: #a1a1aa;
-    --k-ms-tag-close-hover: #ef4444;
+    --k-ms-tag-bg: var(--k-white);
+    --k-ms-tag-border: var(--k-zinc-200);
+    --k-ms-tag-text: var(--k-zinc-900);
+    --k-ms-tag-close: var(--k-zinc-400);
+    --k-ms-tag-close-hover: var(--k-red-500);
     
-    --k-ms-popup-bg: #ffffff;
-    --k-ms-popup-border: #e4e4e7;
+    --k-ms-popup-bg: var(--k-white);
+    --k-ms-popup-border: var(--k-zinc-200);
     --k-ms-popup-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
     
-    --k-ms-item-text: #3f3f46;
-    --k-ms-item-hover-bg: #f4f4f5;
+    --k-ms-item-text: var(--k-zinc-700);
+    --k-ms-item-hover-bg: var(--k-zinc-100);
 }
 
 .dark .k-multiselect-wrapper {
     --k-ms-bg: rgba(24, 24, 27, 0.5);
-    --k-ms-border: #27272a;
+    --k-ms-border: var(--k-zinc-800);
     --k-ms-border-focus: rgba(234, 179, 8, 0.5);
     --k-ms-ring: rgba(234, 179, 8, 0.05);
-    --k-ms-text: #e4e4e7;
-    --k-ms-placeholder: #71717a;
-    --k-ms-label: #a1a1aa;
-    --k-ms-disabled-bg: #18181b;
+    --k-ms-text: var(--k-zinc-200);
+    --k-ms-placeholder: var(--k-zinc-500);
+    --k-ms-label: var(--k-zinc-400);
+    --k-ms-disabled-bg: var(--k-zinc-900);
     
-    --k-ms-tag-bg: #27272a;
-    --k-ms-tag-border: #3f3f46;
-    --k-ms-tag-text: #e4e4e7;
-    --k-ms-tag-close: #71717a;
+    --k-ms-tag-bg: var(--k-zinc-800);
+    --k-ms-tag-border: var(--k-zinc-700);
+    --k-ms-tag-text: var(--k-zinc-200);
+    --k-ms-tag-close: var(--k-zinc-500);
     
-    --k-ms-popup-bg: #18181b;
-    --k-ms-popup-border: #27272a;
+    --k-ms-popup-bg: var(--k-zinc-900);
+    --k-ms-popup-border: var(--k-zinc-800);
     --k-ms-popup-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
     
-    --k-ms-item-text: #d4d4d8;
-    --k-ms-item-hover-bg: #27272a;
+    --k-ms-item-text: var(--k-zinc-300);
+    --k-ms-item-hover-bg: var(--k-zinc-800);
 }
 
 .k-multiselect-label {
@@ -147,7 +147,7 @@
     right: 12px;
     width: 16px;
     height: 16px;
-    border: 2px solid #eab308;
+    border: 2px solid var(--k-yellow-500);
     border-top-color: transparent;
     border-radius: 50%;
     animation: k-ms-spin 1s linear infinite;
@@ -161,7 +161,7 @@
     position: absolute;
     top: calc(100% + 8px);
     left: 0;
-    z-index: 100;
+    z-index: var(--k-z-overlay);
     width: 100%;
     background-color: var(--k-ms-popup-bg);
     border: 1px solid var(--k-ms-popup-border);
@@ -201,7 +201,8 @@
     color: var(--k-ms-item-text);
 }
 
-.k-multiselect-item:hover {
+.k-multiselect-item:hover,
+.k-multiselect-item--active {
     background-color: var(--k-ms-item-hover-bg);
 }
 

@@ -2,31 +2,43 @@
   "name": "@kyokusu-ui/core",
   "version": "0.0.7",
   "type": "module",
-  "main": "./dist/index.js",
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.js",
   "types": "./dist/index.d.ts",
-  "files": ["dist"],
+  "files": [
+    "dist"
+  ],
+  "sideEffects": [
+    "*.css"
+  ],
   "exports": {
     ".": {
+      "types": "./dist/index.d.ts",
       "import": "./dist/index.js",
-      "types": "./dist/index.d.ts"
+      "require": "./dist/index.cjs"
     },
-    "./dist/index.css": {
-      "import": "./dist/index.css",
-      "require": "./dist/index.css",
-      "style": "./dist/index.css"
-    },
-    "./style.css": {
-      "import": "./dist/index.css",
-      "require": "./dist/index.css",
-      "style": "./dist/index.css"
-    }
+    "./style.css": "./dist/index.css",
+    "./dist/index.css": "./dist/index.css",
+    "./context-menu.css": "./dist/context-menu.css"
   },
   "scripts": {
-    "build": "tsup src/index.ts --format esm --clean && tsc --emitDeclarationOnly --declaration --outDir dist",
-    "test": "bun test"
+    "build": "tsup && tsc --emitDeclarationOnly --declaration --outDir dist",
+    "dev": "tsup --watch",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run --root ../.. packages/core"
   },
   "devDependencies": {
     "tsup": "^8.5.1",
     "typescript": "^7.0.2"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Lanxre/kyokusu-ui.git",
+    "directory": "packages/core"
+  },
+  "homepage": "https://github.com/Lanxre/kyokusu-ui#readme",
+  "license": "MIT",
+  "publishConfig": {
+    "access": "public"
   }
 }

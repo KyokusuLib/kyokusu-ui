@@ -1,5 +1,6 @@
 import { createApp } from 'vue'
 import { createPinia } from 'pinia'
+import '@kyokusu-ui/vue/style.css'
 import './assets/styles/global.css'
 import App from './App.vue'
 import router from './router'

@@ -9,6 +9,7 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@kyokusu-ui/core": "workspace:*",
     "@kyokusu-ui/vue": "workspace:*",
     "@phosphor-icons/vue": "^2.2.1",
     "pinia": "^3.0.4",

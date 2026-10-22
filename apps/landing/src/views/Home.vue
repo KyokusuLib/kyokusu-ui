@@ -3,6 +3,7 @@ import Navbar from '../components/Navbar.vue'
 import Hero from '../components/Hero.vue'
 import Features from '../components/Features.vue'
 import Showcase from '../components/Showcase.vue'
+import ContextMenuDemo from '../components/ContextMenuDemo.vue'
 import CodeSnippet from '../components/CodeSnippet.vue'
 import Footer from '../components/Footer.vue'
 </script>
@@ -14,6 +15,7 @@ import Footer from '../components/Footer.vue'
       <Hero />
       <Features />
       <Showcase />
+      <ContextMenuDemo />
       <CodeSnippet />
     </main>
     <Footer />

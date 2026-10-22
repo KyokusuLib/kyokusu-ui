@@ -69,8 +69,6 @@ const isItemSelected = (item: MenuItem): boolean => {
 const onSelect = (item: MenuItem) => {
     emit('select', item)
 
-    if (props.selectionType === 'none') return
-
     if (props.selectionType === 'radio') {
         emit('update:modelValue', item.id)
     } else if (props.selectionType === 'checkbox') {
@@ -83,6 +81,8 @@ const onSelect = (item: MenuItem) => {
         }
         emit('update:modelValue', current)
     }
+
+    hide()
 }
 
 const getMenuItems = () =>

@@ -37,6 +37,7 @@ export function useDropdownMenu(options: UseDropdownMenuOptions): UseDropdownMen
     )
 
     const show = () => {
+        if (isOpen.value) return
         if (hoverTimeout) {
             clearTimeout(hoverTimeout)
             hoverTimeout = null
@@ -46,6 +47,7 @@ export function useDropdownMenu(options: UseDropdownMenuOptions): UseDropdownMen
     }
 
     const hide = () => {
+        if (!isOpen.value) return
         isOpen.value = false
         options.onClose?.()
     }

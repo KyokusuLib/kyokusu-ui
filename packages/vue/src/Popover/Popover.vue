@@ -52,7 +52,7 @@ const setOpen = (value: boolean) => {
     }
 }
 
-const toggle = () => setOpen(!visible.value)
+const toggle = () => (visible.value ? hide() : show())
 
 const show = () => {
     setOpen(true)

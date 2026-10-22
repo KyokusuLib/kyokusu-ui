@@ -45,9 +45,9 @@ const initials = computed(() => {
 const wrapperStyle = computed(() => ({
     width: `${pixelSize.value}px`,
     height: `${pixelSize.value}px`,
-    backgroundColor: props.bg || '#27272a',
+    backgroundColor: props.bg || 'var(--k-zinc-800)',
     borderWidth: props.border ? '2px' : '0',
-    borderColor: props.border ? '#ffffff' : 'transparent'
+    borderColor: props.border ? 'var(--k-white)' : 'transparent'
 }))
 
 const fontSize = computed(() => {
@@ -100,13 +100,13 @@ const contentStyle = computed(() => props.color ? { color: props.color } : {})
 
 .k-circle-block-text {
     font-weight: 600;
-    color: #ffffff;
+    color: var(--k-white);
     line-height: 1;
     letter-spacing: 0.5px;
 }
 
 .k-circle-block-icon {
-    color: #ffffff;
+    color: var(--k-white);
 }
 
 .k-circle-block-icon--default {

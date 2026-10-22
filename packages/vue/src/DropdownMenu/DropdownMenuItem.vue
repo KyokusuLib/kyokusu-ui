@@ -117,6 +117,14 @@ const onSubmenuSelect = (item: MenuItem) => {
     emit('select', item)
 }
 
+const showSubmenuAndFocus = async () => {
+    if (!hasSubmenu.value) return
+    showSubmenu()
+    const { nextTick } = await import('vue')
+    await nextTick()
+    submenuRef.value?.querySelector<HTMLElement>('[role="menuitem"]')?.focus()
+}
+
 watch(isSubmenuOpen, updateSubmenuPosition)
 
 onUnmounted(() => {
@@ -128,6 +136,7 @@ onUnmounted(() => {
     <li
         v-if="item.separator"
         class="k-dropdown-separator"
+        role="separator"
     />
     <li
         v-else
@@ -138,9 +147,18 @@ onUnmounted(() => {
             'k-dropdown-item--has-submenu': hasSubmenu,
             'k-dropdown-item--selected': showIndicator
         }"
+        role="menuitem"
+        tabindex="-1"
+        :aria-disabled="item.disabled || undefined"
+        :aria-haspopup="hasSubmenu ? 'menu' : undefined"
+        :aria-expanded="hasSubmenu ? isSubmenuOpen : undefined"
         @click="onItemClick"
         @mouseenter="onItemMouseEnter"
         @mouseleave="onItemMouseLeave"
+        @keydown.enter.prevent.stop="onItemClick"
+        @keydown.space.prevent.stop="onItemClick"
+        @keydown.right.prevent.stop="showSubmenuAndFocus"
+        @keydown.left.prevent.stop="isSubmenuOpen = false"
     >
         <span v-if="selectionType === 'checkbox'" class="k-dropdown-indicator">
             <PhCheck v-if="showIndicator" :size="14" weight="bold" />
@@ -159,6 +177,7 @@ onUnmounted(() => {
                     ref="submenuRef"
                     class="k-dropdown-menu k-dropdown-submenu"
                     :style="submenuStyle"
+                    role="menu"
                     @mouseenter="onSubmenuMouseEnter"
                     @mouseleave="onSubmenuMouseLeave"
                 >
@@ -184,7 +203,7 @@ onUnmounted(() => {
     gap: 8px;
     padding: 8px 12px;
     font-size: 13px;
-    color: #18181b;
+    color: var(--k-zinc-900);
     cursor: pointer;
     border-radius: 4px;
     transition: background-color 0.1s ease;
@@ -193,15 +212,15 @@ onUnmounted(() => {
 }
 
 .dark .k-dropdown-item {
-    color: #f4f4f5;
+    color: var(--k-zinc-100);
 }
 
 .k-dropdown-item:hover:not(.k-dropdown-item--disabled) {
-    background-color: #cbcbce;
+    background-color: var(--k-zinc-350);
 }
 
 .dark .k-dropdown-item:hover:not(.k-dropdown-item--disabled) {
-    background-color: #3f3f46;
+    background-color: var(--k-zinc-700);
 }
 
 .k-dropdown-item--disabled {
@@ -216,28 +235,28 @@ onUnmounted(() => {
     width: 16px;
     height: 16px;
     flex-shrink: 0;
-    color: #18181b;
+    color: var(--k-zinc-900);
 }
 
 .dark .k-dropdown-indicator {
-    color: #f4f4f5;
+    color: var(--k-zinc-100);
 }
 
 .k-dropdown-radio-dot {
-    color: #18181b;
+    color: var(--k-zinc-900);
 }
 
 .dark .k-dropdown-radio-dot {
-    color: #f4f4f5;
+    color: var(--k-zinc-100);
 }
 
 .k-dropdown-item-icon {
     flex-shrink: 0;
-    color: #71717a;
+    color: var(--k-zinc-500);
 }
 
 .dark .k-dropdown-item-icon {
-    color: #a1a1aa;
+    color: var(--k-zinc-400);
 }
 
 .k-dropdown-item-label {
@@ -246,28 +265,28 @@ onUnmounted(() => {
 
 .k-dropdown-item-arrow {
     flex-shrink: 0;
-    color: #71717a;
+    color: var(--k-zinc-500);
 }
 
 .dark .k-dropdown-item-arrow {
-    color: #a1a1aa;
+    color: var(--k-zinc-400);
 }
 
 .k-dropdown-separator {
     height: 1px;
-    background-color: #e4e4e7;
+    background-color: var(--k-zinc-200);
     margin: 4px 8px;
 }
 
 .dark .k-dropdown-separator {
-    background-color: #3f3f46;
+    background-color: var(--k-zinc-700);
 }
 
 .k-dropdown-submenu {
-    z-index: 10001;
-    background-color: #ffffff;
+    z-index: var(--k-z-submenu);
+    background-color: var(--k-white);
     border-radius: 8px;
-    border : 1px solid #161616;
+    border : 1px solid var(--k-neutral-900);
     box-shadow: 0 4px 24px rgba(0, 0, 0, 0.12), 0 0 0 1px rgba(0, 0, 0, 0.05);
     padding: 4px;
     list-style: none;
@@ -275,7 +294,7 @@ onUnmounted(() => {
 }
 
 .dark .k-dropdown-submenu {
-    background-color: #27272a;
+    background-color: var(--k-zinc-800);
     box-shadow: 0 4px 24px rgba(0, 0, 0, 0.4), 0 0 0 1px rgba(255, 255, 255, 0.1);
     border-color: rgba(211, 211, 211, 0.4);
 }

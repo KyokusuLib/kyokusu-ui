@@ -19,12 +19,12 @@ const props = defineProps<Props>();
     font-weight: 900;
     text-transform: uppercase;
     letter-spacing: 0.05em;
-    color: #71717a;
+    color: var(--k-zinc-500);
     margin-left: 4px;
     display: inline-block;
 }
 
 .dark .k-label {
-    color: #a1a1aa;
+    color: var(--k-zinc-400);
 }
 </style>

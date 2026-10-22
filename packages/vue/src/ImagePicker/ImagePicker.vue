@@ -2,6 +2,7 @@
 import { ref, computed, watch } from 'vue'
 import { PhImage, PhX } from '@phosphor-icons/vue'
 import type { ImagePickerProps } from './types'
+import { useKyokusuLocale } from '../i18n'
 
 interface Props {
     size?: ImagePickerProps['size']
@@ -12,6 +13,7 @@ interface Props {
     label?: ImagePickerProps['label']
     placeholder?: ImagePickerProps['placeholder']
     disabled?: ImagePickerProps['disabled']
+    locale?: string
 }
 
 const props = withDefaults(defineProps<Props>(), {
@@ -21,9 +23,11 @@ const props = withDefaults(defineProps<Props>(), {
     accept: 'image/*',
     maxSize: 5,
     label: '',
-    placeholder: 'Нажмите или перетащите изображение',
+    placeholder: '',
     disabled: false
 })
+
+const { t } = useKyokusuLocale(() => props.locale)
 
 const emit = defineEmits<{
     (e: 'update:modelValue', value: File | null): void
@@ -57,7 +61,7 @@ const wrapperStyle = computed(() => ({
 const borderStyle = computed(() => {
     if (props.border === 'none') return {}
     return {
-        border: `2px ${props.border} ${isDragOver.value ? '#18181b' : '#d4d4d8'}`
+        border: `2px ${props.border} ${isDragOver.value ? 'var(--k-zinc-900)' : 'var(--k-zinc-300)'}`
     }
 })
 
@@ -65,12 +69,12 @@ const handleFile = (file: File) => {
     if (props.disabled) return
 
     if (!file.type.startsWith('image/')) {
-        emit('error', 'Выберите файл изображения')
+        emit('error', t('invalidImageType'))
         return
     }
 
     if (file.size > props.maxSize * 1024 * 1024) {
-        emit('error', `Файл слишком большой. Максимум: ${props.maxSize} МБ`)
+        emit('error', t('fileTooLarge', { size: props.maxSize }))
         return
     }
 
@@ -163,7 +167,7 @@ watch(model, (file) => {
             <template v-else>
                 <div class="k-image-picker-placeholder">
                     <PhImage :size="24" class="k-image-picker-icon" />
-                    <span class="k-image-picker-text">{{ placeholder }}</span>
+                    <span class="k-image-picker-text">{{ placeholder || t('imagePlaceholder') }}</span>
                 </div>
             </template>
         </div>
@@ -176,24 +180,24 @@ watch(model, (file) => {
     flex-direction: column;
     gap: 6px;
 
-    --k-picker-bg: #fafafa;
-    --k-picker-bg-hover: #f4f4f5;
-    --k-picker-border: #d4d4d8;
-    --k-picker-border-active: #18181b;
-    --k-picker-text: #71717a;
-    --k-picker-icon: #a1a1aa;
-    --k-picker-label: #18181b;
-    --k-picker-remove-bg: #ef4444;
+    --k-picker-bg: var(--k-zinc-50);
+    --k-picker-bg-hover: var(--k-zinc-100);
+    --k-picker-border: var(--k-zinc-300);
+    --k-picker-border-active: var(--k-zinc-900);
+    --k-picker-text: var(--k-zinc-500);
+    --k-picker-icon: var(--k-zinc-400);
+    --k-picker-label: var(--k-zinc-900);
+    --k-picker-remove-bg: var(--k-red-500);
 }
 
 .dark .k-image-picker-wrapper {
-    --k-picker-bg: #18181b;
-    --k-picker-bg-hover: #27272a;
-    --k-picker-border: #3f3f46;
-    --k-picker-border-active: #ffffff;
-    --k-picker-text: #71717a;
-    --k-picker-icon: #52525b;
-    --k-picker-label: #f4f4f5;
+    --k-picker-bg: var(--k-zinc-900);
+    --k-picker-bg-hover: var(--k-zinc-800);
+    --k-picker-border: var(--k-zinc-700);
+    --k-picker-border-active: var(--k-white);
+    --k-picker-text: var(--k-zinc-500);
+    --k-picker-icon: var(--k-zinc-600);
+    --k-picker-label: var(--k-zinc-100);
 }
 
 .k-image-picker-label {

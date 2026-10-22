@@ -1,6 +1,7 @@
 <script lang="ts" setup>
-import { ref, watch, onMounted, reactive, nextTick, useId } from "vue";
+import { ref, computed, watch, onMounted, reactive, nextTick, useId } from "vue";
 import { PhTextBolder, PhTextItalic, PhTextStrikethrough } from "@phosphor-icons/vue";
+import { useKyokusuLocale } from "../i18n";
 
 interface Props {
     id?: string;
@@ -9,20 +10,22 @@ interface Props {
     error?: string;
     disabled?: boolean;
     placeholder?: string;
+    locale?: string;
 }
 
 const props = defineProps<Props>();
+const { t } = useKyokusuLocale(() => props.locale);
 const model = defineModel<string>({ default: '' });
 const editorId = props.id || useId();
 
 const editorRef = ref<HTMLElement | null>(null);
 const charCount = ref(0);
 
-const toolbarItems = [
-    { command: "bold", icon: PhTextBolder, label: "Жирный" },
-    { command: "italic", icon: PhTextItalic, label: "Курсив" },
-    { command: "strikeThrough", icon: PhTextStrikethrough, label: "Зачеркнутый" },
-];
+const toolbarItems = computed(() => [
+    { command: "bold", icon: PhTextBolder, label: t("bold") },
+    { command: "italic", icon: PhTextItalic, label: t("italic") },
+    { command: "strikeThrough", icon: PhTextStrikethrough, label: t("strikeThrough") },
+]);
 
 const activeStates = reactive<Record<string, boolean>>({
     bold: false,
@@ -34,7 +37,7 @@ const isClient = typeof window !== 'undefined';
 
 const syncStates = () => {
     if (!isClient || !editorRef.value || props.disabled) return;
-    for (const item of toolbarItems) {
+    for (const item of toolbarItems.value) {
         activeStates[item.command] = document.queryCommandState(item.command);
     }
 };
@@ -110,6 +113,7 @@ onMounted(() => {
                     class="k-editor-btn"
                     :class="{ 'k-editor-btn--active': activeStates[item.command] }"
                     :title="item.label"
+                    :aria-label="item.label"
                 >
                     <component :is="item.icon" :size="18" weight="bold" />
                 </button>
@@ -135,39 +139,39 @@ onMounted(() => {
     gap: 6px;
     width: 100%;
 
-    --k-editor-bg: #ffffff;
-    --k-editor-border: #e4e4e7;
+    --k-editor-bg: var(--k-white);
+    --k-editor-border: var(--k-zinc-200);
     --k-editor-border-focus: rgba(234, 179, 8, 0.5);
     --k-editor-ring: rgba(234, 179, 8, 0.05);
     
-    --k-editor-text: #18181b;
-    --k-editor-label: #71717a;
+    --k-editor-text: var(--k-zinc-900);
+    --k-editor-label: var(--k-zinc-500);
     
-    --k-editor-toolbar-bg: #fafafa;
-    --k-editor-toolbar-border: #e4e4e7;
+    --k-editor-toolbar-bg: var(--k-zinc-50);
+    --k-editor-toolbar-border: var(--k-zinc-200);
     
-    --k-editor-btn-text: #71717a;
-    --k-editor-btn-hover-bg: #e4e4e7;
+    --k-editor-btn-text: var(--k-zinc-500);
+    --k-editor-btn-hover-bg: var(--k-zinc-200);
     --k-editor-btn-active-bg: rgba(202, 138, 4, 0.4);
-    --k-editor-btn-active-text: #ffffff;
+    --k-editor-btn-active-text: var(--k-white);
     --k-editor-btn-active-shadow: 0 4px 14px 0 rgba(234, 179, 8, 0.2);
     
-    --k-editor-error: #ef4444;
+    --k-editor-error: var(--k-red-500);
     --k-editor-error-ring: rgba(239, 68, 68, 0.05);
 }
 
 .dark .k-editor-wrapper {
-    --k-editor-bg: #18181b;
-    --k-editor-border: #3f3f46;
+    --k-editor-bg: var(--k-zinc-900);
+    --k-editor-border: var(--k-zinc-700);
     
-    --k-editor-text: #f4f4f5;
-    --k-editor-label: #a1a1aa;
+    --k-editor-text: var(--k-zinc-100);
+    --k-editor-label: var(--k-zinc-400);
     
-    --k-editor-toolbar-bg: #27272a;
-    --k-editor-toolbar-border: #3f3f46;
+    --k-editor-toolbar-bg: var(--k-zinc-800);
+    --k-editor-toolbar-border: var(--k-zinc-700);
     
-    --k-editor-btn-text: #a1a1aa;
-    --k-editor-btn-hover-bg: #3f3f46;
+    --k-editor-btn-text: var(--k-zinc-400);
+    --k-editor-btn-hover-bg: var(--k-zinc-700);
 }
 
 .k-editor-label {

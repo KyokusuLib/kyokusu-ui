@@ -49,7 +49,7 @@ const isDisabled = computed(() => props.disabled || props.loading);
         :disabled="isDisabled"
         :aria-disabled="isDisabled ? 'true' : undefined"
     >
-        <span v-if="loading" class="k-button-loader mr-2"></span>
+        <span v-if="loading" class="k-button-loader"></span>
         <slot name="icon-left" v-if="!loading"></slot>
         <span v-if="size !== 'icon'" class="k-button-content">
             <slot></slot>
@@ -77,10 +77,10 @@ const isDisabled = computed(() => props.disabled || props.loading);
     outline: none;
     text-decoration: none;
 
-    --k-btn-bg: #18181b;
-    --k-btn-text: #ffffff;
+    --k-btn-bg: var(--k-zinc-900);
+    --k-btn-text: var(--k-white);
     --k-btn-border: transparent;
-    --k-btn-hover-bg: #3f3f46;
+    --k-btn-hover-bg: var(--k-zinc-700);
     --k-btn-hover-border: transparent;
     --k-btn-ring: rgba(24, 24, 27, 0.2);
     --k-btn-glow: rgba(24, 24, 27, 0.4);
@@ -91,10 +91,10 @@ const isDisabled = computed(() => props.disabled || props.loading);
 }
 
 .dark .k-button {
-    --k-btn-bg: #ffffff;
-    --k-btn-text: #18181b;
+    --k-btn-bg: var(--k-white);
+    --k-btn-text: var(--k-zinc-900);
     --k-btn-border: transparent;
-    --k-btn-hover-bg: #e4e4e7;
+    --k-btn-hover-bg: var(--k-zinc-200);
     --k-btn-ring: rgba(255, 255, 255, 0.2);
     --k-btn-glow: rgba(255, 255, 255, 0.4);
 }
@@ -118,69 +118,69 @@ const isDisabled = computed(() => props.disabled || props.loading);
 }
 
 .k-button--secondary {
-    --k-btn-bg: #f4f4f5;
-    --k-btn-text: #18181b;
-    --k-btn-hover-bg: #e4e4e7;
+    --k-btn-bg: var(--k-zinc-100);
+    --k-btn-text: var(--k-zinc-900);
+    --k-btn-hover-bg: var(--k-zinc-200);
 }
 .dark .k-button--secondary {
-    --k-btn-bg: #27272a;
-    --k-btn-text: #f4f4f5;
-    --k-btn-hover-bg: #3f3f46;
+    --k-btn-bg: var(--k-zinc-800);
+    --k-btn-text: var(--k-zinc-100);
+    --k-btn-hover-bg: var(--k-zinc-700);
 }
 
 .k-button--outline {
     --k-btn-bg: transparent;
-    --k-btn-text: #18181b;
-    --k-btn-border: #e4e4e7;
-    --k-btn-hover-bg: #f4f4f5;
-    --k-btn-hover-border: #d4d4d8;
+    --k-btn-text: var(--k-zinc-900);
+    --k-btn-border: var(--k-zinc-200);
+    --k-btn-hover-bg: var(--k-zinc-100);
+    --k-btn-hover-border: var(--k-zinc-300);
 }
 .dark .k-button--outline {
     --k-btn-bg: transparent;
-    --k-btn-text: #f4f4f5;
-    --k-btn-border: #3f3f46;
-    --k-btn-hover-bg: #27272a;
-    --k-btn-hover-border: #52525b;
+    --k-btn-text: var(--k-zinc-100);
+    --k-btn-border: var(--k-zinc-700);
+    --k-btn-hover-bg: var(--k-zinc-800);
+    --k-btn-hover-border: var(--k-zinc-600);
 }
 
 .k-button--ghost {
     --k-btn-bg: transparent;
-    --k-btn-text: #18181b;
-    --k-btn-hover-bg: #f4f4f5;
+    --k-btn-text: var(--k-zinc-900);
+    --k-btn-hover-bg: var(--k-zinc-100);
 }
 .dark .k-button--ghost {
     --k-btn-bg: transparent;
-    --k-btn-text: #f4f4f5;
-    --k-btn-hover-bg: #27272a;
+    --k-btn-text: var(--k-zinc-100);
+    --k-btn-hover-bg: var(--k-zinc-800);
 }
 
 .k-button--danger {
-    --k-btn-bg: #ef4444;
-    --k-btn-text: #ffffff;
-    --k-btn-hover-bg: #dc2626;
+    --k-btn-bg: var(--k-red-500);
+    --k-btn-text: var(--k-white);
+    --k-btn-hover-bg: var(--k-red-600);
     --k-btn-ring: rgba(239, 68, 68, 0.2);
     --k-btn-glow: rgba(239, 68, 68, 0.4);
 }
 .dark .k-button--danger {
-    --k-btn-bg: #ef4444;
-    --k-btn-text: #ffffff;
-    --k-btn-hover-bg: #dc2626;
+    --k-btn-bg: var(--k-red-500);
+    --k-btn-text: var(--k-white);
+    --k-btn-hover-bg: var(--k-red-600);
     --k-btn-ring: rgba(239, 68, 68, 0.2);
     --k-btn-glow: rgba(239, 68, 68, 0.4);
 }
 
 .k-button--accent {
-    --k-btn-bg: #eab308;
-    --k-btn-text: #ffffff;
-    --k-btn-hover-bg: #ca8a04;
+    --k-btn-bg: var(--k-yellow-500);
+    --k-btn-text: var(--k-white);
+    --k-btn-hover-bg: var(--k-yellow-600);
     --k-btn-ring: rgba(234, 179, 8, 0.2);
     --k-btn-glow: rgba(234, 179, 8, 0.4);
 }
 
 .dark .k-button--accent {
-    --k-btn-bg: #eab308;
-    --k-btn-text: #ffffff;
-    --k-btn-hover-bg: #ca8a04;
+    --k-btn-bg: var(--k-yellow-500);
+    --k-btn-text: var(--k-white);
+    --k-btn-hover-bg: var(--k-yellow-600);
     --k-btn-ring: rgba(234, 179, 8, 0.2);
     --k-btn-glow: rgba(234, 179, 8, 0.4);
 }
@@ -238,9 +238,6 @@ const isDisabled = computed(() => props.disabled || props.loading);
     border-radius: 50%;
     animation: k-btn-spin 0.75s linear infinite;
     display: inline-block;
-}
-
-.mr-2 {
     margin-right: 8px;
 }
 

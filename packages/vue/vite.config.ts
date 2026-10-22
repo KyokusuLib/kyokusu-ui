@@ -1,23 +1,25 @@
 import { defineConfig } from 'vite';
 import vue from '@vitejs/plugin-vue';
-import cssInjectedByJsPlugin from 'vite-plugin-css-injected-by-js';
 import dts from 'vite-plugin-dts';
 
 export default defineConfig({
   plugins: [
     vue(),
-    cssInjectedByJsPlugin(),
     dts({ insertTypesEntry: true })
   ],
   build: {
+    cssCodeSplit: false,
     lib: {
       entry: './src/index.ts',
       name: 'KyokusuUIVue',
       fileName: 'kyokusu-ui-vue',
+      cssFileName: 'style',
       formats: ['es', 'cjs']
     },
     rollupOptions: {
-      external: ['vue', '@kyokusu-ui/core'],
+      // Keep runtime dependencies out of the bundle. Bundling Vue or the icon
+      // set produces duplicate instances and a needlessly large package.
+      external: ['vue', /^@phosphor-icons\/vue/],
       output: {
         globals: {
           vue: 'Vue'

@@ -211,50 +211,50 @@ onUnmounted(() => {
 }
 
 .k-popover {
-    z-index: 9999;
-    background-color: #ffffff;
+    z-index: var(--k-z-popover);
+    background-color: var(--k-white);
     border-radius: 8px;
     box-shadow: 0 4px 24px rgba(0, 0, 0, 0.12), 0 0 0 1px rgba(0, 0, 0, 0.05);
     padding: 12px;
 }
 
 .dark .k-popover {
-    background-color: #27272a;
+    background-color: var(--k-zinc-800);
     box-shadow: 0 4px 24px rgba(0, 0, 0, 0.4), 0 0 0 1px rgba(255, 255, 255, 0.1);
 }
 
 .k-popover-title {
     font-size: 14px;
     font-weight: 600;
-    color: #18181b;
+    color: var(--k-zinc-900);
     margin-bottom: 8px;
 }
 
 .dark .k-popover-title {
-    color: #f4f4f5;
+    color: var(--k-zinc-100);
 }
 
 .k-popover-content {
     font-size: 13px;
-    color: #52525b;
+    color: var(--k-zinc-600);
     line-height: 1.5;
 }
 
 .dark .k-popover-content {
-    color: #a1a1aa;
+    color: var(--k-zinc-400);
 }
 
 .k-popover-arrow {
     position: absolute;
     width: 8px;
     height: 8px;
-    background-color: #ffffff;
+    background-color: var(--k-white);
     transform: rotate(45deg);
     border: 1px solid rgba(0, 0, 0, 0.05);
 }
 
 .dark .k-popover-arrow {
-    background-color: #27272a;
+    background-color: var(--k-zinc-800);
     border-color: rgba(255, 255, 255, 0.1);
 }
 

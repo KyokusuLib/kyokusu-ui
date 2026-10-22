@@ -50,12 +50,12 @@ const toggle = () => {
 
 <style scoped>
 .dark .k-toggle-container {
-  --k-toggle-bg-off: #e4e4e7;
-  --k-toggle-bg-on: #ffffff;
-  --k-toggle-thumb-off: #71717a;
-  --k-toggle-thumb-on: #18181b;
-  --k-toggle-ring: #ffffff;
-  --k-toggle-label-color: #f4f4f5;
+  --k-toggle-bg-off: var(--k-zinc-200);
+  --k-toggle-bg-on: var(--k-white);
+  --k-toggle-thumb-off: var(--k-zinc-500);
+  --k-toggle-thumb-on: var(--k-zinc-900);
+  --k-toggle-ring: var(--k-white);
+  --k-toggle-label-color: var(--k-zinc-100);
 }
 
 .k-toggle-container {
@@ -63,12 +63,12 @@ const toggle = () => {
   --k-toggle-height: 24px;
   --k-toggle-thumb-size: 20px;
 
-  --k-toggle-bg-off: #3f3f46;
-  --k-toggle-bg-on: #18181b;
-  --k-toggle-thumb-off: #a1a1aa;
-  --k-toggle-thumb-on: #ffffff;
-  --k-toggle-ring: #18181b;
-  --k-toggle-label-color: #18181b;
+  --k-toggle-bg-off: var(--k-zinc-700);
+  --k-toggle-bg-on: var(--k-zinc-900);
+  --k-toggle-thumb-off: var(--k-zinc-400);
+  --k-toggle-thumb-on: var(--k-white);
+  --k-toggle-ring: var(--k-zinc-900);
+  --k-toggle-label-color: var(--k-zinc-900);
 
   display: flex;
   align-items: center;

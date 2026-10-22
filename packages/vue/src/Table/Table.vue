@@ -8,6 +8,7 @@ import {
     PhCaretDown,
     PhCaretUpDown
 } from "@phosphor-icons/vue";
+import { useKyokusuLocale } from "../i18n";
 
 export interface TableHeader {
     key: string;
@@ -24,13 +25,14 @@ const props = withDefaults(defineProps<{
     showActions?: boolean;
     emptyText?: string;
     loading?: boolean;
+    locale?: string;
 }>(), {
     searchable: true,
-    searchPlaceholder: 'Search...',
     showActions: true,
-    emptyText: 'No data found',
     loading: false
 });
+
+const { t } = useKyokusuLocale(() => props.locale);
 
 const emit = defineEmits<{
     (e: 'edit', item: Record<string, any>): void;
@@ -96,7 +98,7 @@ const filteredAndSortedItems = computed(() => {
                     v-model="searchQuery" 
                     type="text" 
                     class="k-table-search-input" 
-                    :placeholder="searchPlaceholder" 
+                    :placeholder="searchPlaceholder ?? t('searchPlaceholder')"
                 />
             </div>
             <slot name="toolbar-actions"></slot>
@@ -128,7 +130,7 @@ const filteredAndSortedItems = computed(() => {
                             </div>
                         </th>
                         <th v-if="showActions" class="k-table-align-right k-table-th-actions">
-                            Actions
+                            {{ t('actions') }}
                         </th>
                     </tr>
                 </thead>
@@ -141,7 +143,7 @@ const filteredAndSortedItems = computed(() => {
                     </tr>
                     <tr v-else-if="filteredAndSortedItems.length === 0">
                         <td :colspan="showActions ? headers.length + 1 : headers.length" class="k-table-state-cell">
-                            <span class="k-table-empty-text">{{ emptyText }}</span>
+                            <span class="k-table-empty-text">{{ emptyText ?? t('noData') }}</span>
                         </td>
                     </tr>
                     <tr v-else v-for="(item, index) in filteredAndSortedItems" :key="index" class="k-table-row">
@@ -156,10 +158,10 @@ const filteredAndSortedItems = computed(() => {
                         </td>
                         <td v-if="showActions" class="k-table-align-right k-table-actions-cell">
                             <div class="k-table-actions">
-                                <button class="k-table-action-btn k-table-action-edit" @click="emit('edit', item)" aria-label="Edit">
+                                <button class="k-table-action-btn k-table-action-edit" @click="emit('edit', item)" :aria-label="t('edit')">
                                     <PhPencilSimple :size="16" weight="duotone" />
                                 </button>
-                                <button class="k-table-action-btn k-table-action-delete" @click="emit('delete', item)" aria-label="Delete">
+                                <button class="k-table-action-btn k-table-action-delete" @click="emit('delete', item)" :aria-label="t('delete')">
                                     <PhTrash :size="16" weight="duotone" />
                                 </button>
                             </div>
@@ -184,34 +186,34 @@ const filteredAndSortedItems = computed(() => {
     gap: 16px;
     font-family: inherit;
 
-    --k-table-bg: #ffffff;
-    --k-table-border: #e4e4e7;
-    --k-table-text: #18181b;
-    --k-table-text-muted: #71717a;
-    --k-table-header-bg: #f4f4f5;
-    --k-table-row-hover: #f4f4f5;
+    --k-table-bg: var(--k-white);
+    --k-table-border: var(--k-zinc-200);
+    --k-table-text: var(--k-zinc-900);
+    --k-table-text-muted: var(--k-zinc-500);
+    --k-table-header-bg: var(--k-zinc-100);
+    --k-table-row-hover: var(--k-zinc-100);
     
-    --k-table-search-bg: #f4f4f5;
+    --k-table-search-bg: var(--k-zinc-100);
     --k-table-search-border: transparent;
-    --k-table-search-focus: #eab308;
+    --k-table-search-focus: var(--k-yellow-500);
     --k-table-search-ring: rgba(234, 179, 8, 0.1);
     
-    --k-table-action-edit: #3b82f6;
+    --k-table-action-edit: var(--k-blue-500);
     --k-table-action-edit-hover: rgba(59, 130, 246, 0.1);
-    --k-table-action-delete: #ef4444;
+    --k-table-action-delete: var(--k-red-500);
     --k-table-action-delete-hover: rgba(239, 68, 68, 0.1);
 }
 
 .dark .k-table-container {
-    --k-table-bg: #18181b;
-    --k-table-border: #27272a;
-    --k-table-text: #e4e4e7;
-    --k-table-text-muted: #a1a1aa;
-    --k-table-header-bg: #27272a;
-    --k-table-row-hover: #27272a;
+    --k-table-bg: var(--k-zinc-900);
+    --k-table-border: var(--k-zinc-800);
+    --k-table-text: var(--k-zinc-200);
+    --k-table-text-muted: var(--k-zinc-400);
+    --k-table-header-bg: var(--k-zinc-800);
+    --k-table-row-hover: var(--k-zinc-800);
     
-    --k-table-search-bg: #27272a;
-    --k-table-search-border: #27272a;
+    --k-table-search-bg: var(--k-zinc-800);
+    --k-table-search-border: var(--k-zinc-800);
     --k-table-search-focus: rgba(234, 179, 8, 0.5);
     --k-table-search-ring: rgba(234, 179, 8, 0.05);
 }

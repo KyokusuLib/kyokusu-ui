@@ -2,30 +2,52 @@
   "name": "@kyokusu-ui/vue",
   "version": "0.0.7",
   "type": "module",
-  "main": "./dist/kyokusu-ui-vue.umd.cjs",
+  "main": "./dist/kyokusu-ui-vue.cjs",
   "module": "./dist/kyokusu-ui-vue.js",
   "types": "./dist/index.d.ts",
+  "files": [
+    "dist"
+  ],
+  "sideEffects": [
+    "*.css"
+  ],
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/kyokusu-ui-vue.js",
+      "require": "./dist/kyokusu-ui-vue.cjs"
+    },
+    "./style.css": "./dist/style.css",
+    "./dist/index.css": "./dist/style.css"
+  },
   "scripts": {
     "build": "vite build",
-    "dev": "vite build --watch"
+    "dev": "vite build --watch",
+    "typecheck": "vue-tsc --noEmit",
+    "test": "vitest run --root ../.. packages/vue"
   },
   "dependencies": {
-    "@floating-ui/vue": "^2.0.1",
-    "@phosphor-icons/vue": "^2.2.1",
-    "vue": "^3.5.40"
+    "@phosphor-icons/vue": "^2.2.1"
+  },
+  "peerDependencies": {
+    "vue": "^3.5.0"
   },
   "devDependencies": {
     "@vitejs/plugin-vue": "^6.0.8",
     "vite": "^8.1.5",
-    "vite-plugin-css-injected-by-js": "^5.0.2",
-    "vite-plugin-dts": "^5.0.3"
+    "vite-plugin-dts": "^5.0.3",
+    "vue": "^3.5.40",
+    "vue-tsc": "^3.2.6",
+    "typescript": "~5.9.3"
   },
-  "files": ["dist"],
-  "exports": {
-    ".": {
-      "import": "./dist/kyokusu-ui-vue.js",
-      "require": "./dist/kyokusu-ui-vue.umd.cjs",
-      "types": "./dist/index.d.ts"
-    }
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Lanxre/kyokusu-ui.git",
+    "directory": "packages/vue"
+  },
+  "homepage": "https://github.com/Lanxre/kyokusu-ui#readme",
+  "license": "MIT",
+  "publishConfig": {
+    "access": "public"
   }
 }

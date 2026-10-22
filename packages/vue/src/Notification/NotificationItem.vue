@@ -1,6 +1,7 @@
 <script lang="ts" setup>
 import { computed, onUnmounted, ref } from "vue";
 import { PhCheckCircle, PhXCircle, PhWarningCircle, PhInfo, PhX } from "@phosphor-icons/vue";
+import { useKyokusuLocale } from "../i18n";
 
 export interface NotificationPayload {
     title: string;
@@ -18,6 +19,7 @@ const props = defineProps<{
 }>();
 
 const emit = defineEmits(["remove"]);
+const { t } = useKyokusuLocale();
 
 const el = ref<HTMLElement | null>(null);
 const startX = ref(0);
@@ -94,6 +96,8 @@ const style = computed(() => ({
         ref="el"
         class="k-notification-item"
         :style="style"
+        :role="notification.type === 'error' ? 'alert' : 'status'"
+        aria-atomic="true"
         @touchstart="handleTouchStart"
         @touchmove="handleTouchMove"
         @touchend="handleTouchEnd"
@@ -112,13 +116,15 @@ const style = computed(() => ({
             </p>
         </div>
 
-        <div 
+        <button
+            type="button"
             @mousedown.stop
             @click.stop="emit('remove', notification.id)"
             class="k-notification-close"
+            :aria-label="t('closeNotification')"
         >
             <PhX :size="16" weight="bold" />
-        </div>
+        </button>
     </div>
 </template>
 
@@ -127,7 +133,7 @@ const style = computed(() => ({
     pointer-events: auto;
     width: 100%;
     box-sizing: border-box;
-    background-color: var(--k-notif-bg, #ffffff);
+    background-color: var(--k-notif-bg, var(--k-white));
     border: 1px solid var(--k-notif-border, rgba(24, 24, 27, 0.05));
     border-radius: 8px;
     box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
@@ -145,7 +151,7 @@ const style = computed(() => ({
 }
 
 .dark .k-notification-item {
-    --k-notif-bg: #18181b;
+    --k-notif-bg: var(--k-zinc-900);
     --k-notif-border: rgba(255, 255, 255, 0.1);
     box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.5), 0 4px 6px -2px rgba(0, 0, 0, 0.3);
 }
@@ -155,10 +161,10 @@ const style = computed(() => ({
     margin-top: 2px;
 }
 
-.k-notification-icon--success { color: #4ade80; }
-.k-notification-icon--error { color: #f87171; }
-.k-notification-icon--warning { color: #facc15; }
-.k-notification-icon--info { color: #60a5fa; }
+.k-notification-icon--success { color: var(--k-green-400); }
+.k-notification-icon--error { color: var(--k-red-400); }
+.k-notification-icon--warning { color: var(--k-yellow-400); }
+.k-notification-icon--info { color: var(--k-blue-400); }
 
 .k-notification-content {
     flex: 1;
@@ -168,23 +174,23 @@ const style = computed(() => ({
 .k-notification-title {
     font-size: 14px;
     font-weight: bold;
-    color: var(--k-notif-title, #18181b);
+    color: var(--k-notif-title, var(--k-zinc-900));
     margin: 0;
 }
 
 .dark .k-notification-title {
-    --k-notif-title: #f4f4f5;
+    --k-notif-title: var(--k-zinc-100);
 }
 
 .k-notification-desc {
     margin-top: 4px;
     font-size: 14px;
-    color: var(--k-notif-desc, #71717a);
+    color: var(--k-notif-desc, var(--k-zinc-500));
     margin-bottom: 0;
 }
 
 .dark .k-notification-desc {
-    --k-notif-desc: #a1a1aa;
+    --k-notif-desc: var(--k-zinc-400);
 }
 
 .k-notification-close {
@@ -192,7 +198,7 @@ const style = computed(() => ({
     margin-left: 16px;
     background: transparent;
     border: none;
-    color: var(--k-notif-close, #a1a1aa);
+    color: var(--k-notif-close, var(--k-zinc-400));
     padding: 2px;
     border-radius: 4px;
     cursor: pointer;
@@ -201,11 +207,11 @@ const style = computed(() => ({
 }
 
 .k-notification-close:hover {
-    color: var(--k-notif-close-hover, #18181b);
+    color: var(--k-notif-close-hover, var(--k-zinc-900));
 }
 
 .dark .k-notification-close {
-    --k-notif-close: #71717a;
-    --k-notif-close-hover: #f4f4f5;
+    --k-notif-close: var(--k-zinc-500);
+    --k-notif-close-hover: var(--k-zinc-100);
 }
 </style>

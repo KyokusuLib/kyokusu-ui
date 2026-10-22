@@ -15,4 +15,6 @@ export interface ImagePickerProps {
     placeholder?: string
     /** Заблокирован ли компонент */
     disabled?: boolean
+    /** BCP-47 locale для встроенных строк интерфейса */
+    locale?: string
 }

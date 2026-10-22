@@ -82,11 +82,11 @@ onUnmounted(() => {
 
 <style scoped>
 .k-accordion-item {
-    background-color: #ffffff;
+    background-color: var(--k-white);
 }
 
 .dark .k-accordion-item {
-    background-color: #18181b;
+    background-color: var(--k-zinc-900);
 }
 
 .k-accordion-item + .k-accordion-item {
@@ -94,11 +94,11 @@ onUnmounted(() => {
 }
 
 .k-accordion--border > .k-accordion-item + .k-accordion-item {
-    border-top-color: #e4e4e7;
+    border-top-color: var(--k-zinc-200);
 }
 
 .dark .k-accordion--border > .k-accordion-item + .k-accordion-item {
-    border-top-color: #27272a;
+    border-top-color: var(--k-zinc-800);
 }
 
 .k-accordion-trigger {
@@ -114,20 +114,20 @@ onUnmounted(() => {
     font-family: inherit;
     font-size: 14px;
     font-weight: 500;
-    color: #18181b;
+    color: var(--k-zinc-900);
     transition: background-color 0.15s ease;
 }
 
 .dark .k-accordion-trigger {
-    color: #f4f4f5;
+    color: var(--k-zinc-100);
 }
 
 .k-accordion-trigger:hover {
-    background-color: #f4f4f5;
+    background-color: var(--k-zinc-100);
 }
 
 .dark .k-accordion-trigger:hover {
-    background-color: #27272a;
+    background-color: var(--k-zinc-800);
 }
 
 .k-accordion-title {
@@ -138,12 +138,12 @@ onUnmounted(() => {
     display: flex;
     align-items: center;
     justify-content: center;
-    color: #71717a;
+    color: var(--k-zinc-500);
     transition: transform 0.2s ease;
 }
 
 .dark .k-accordion-icon {
-    color: #a1a1aa;
+    color: var(--k-zinc-400);
 }
 
 .k-accordion-item--open .k-accordion-icon {
@@ -158,11 +158,11 @@ onUnmounted(() => {
 .k-accordion-body {
     padding: 0 16px 16px 16px;
     font-size: 14px;
-    color: #52525b;
+    color: var(--k-zinc-600);
     line-height: 1.6;
 }
 
 .dark .k-accordion-body {
-    color: #a1a1aa;
+    color: var(--k-zinc-400);
 }
 </style>

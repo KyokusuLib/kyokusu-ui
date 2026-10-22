@@ -5,7 +5,7 @@
 
 .k-ttip-content {
 	position: fixed;
-	z-index: 100;
+	z-index: var(--k-z-overlay);
 	pointer-events: none;
 	white-space: nowrap;
 }
@@ -21,8 +21,8 @@
 }
 
 .k-ttip-box {
-	background-color: #27272a;
-	color: #ffffff;
+	background-color: var(--k-zinc-800);
+	color: var(--k-white);
 	font-size: 14px;
 	font-weight: 700;
 	line-height: 1;
@@ -33,7 +33,7 @@
 }
 
 .dark .k-ttip-box {
-	background-color: #3f3f46;
+	background-color: var(--k-zinc-700);
 }
 
 .k-ttip-arrow {

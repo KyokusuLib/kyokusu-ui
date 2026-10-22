@@ -112,32 +112,32 @@ const togglePasswordVisibility = () => {
     gap: 6px;
     width: 100%;
 
-    --k-input-bg: #ffffff;
-    --k-input-border: #e4e4e7;
-    --k-input-border-focus: #18181b;
+    --k-input-bg: var(--k-white);
+    --k-input-border: var(--k-zinc-200);
+    --k-input-border-focus: var(--k-zinc-900);
     --k-input-ring: rgba(24, 24, 27, 0.1);
-    --k-input-text: #18181b;
-    --k-input-placeholder: #a1a1aa;
-    --k-input-label: #18181b;
-    --k-input-icon: #71717a;
-    --k-input-icon-focus: #18181b;
-    --k-input-error: #ef4444;
+    --k-input-text: var(--k-zinc-900);
+    --k-input-placeholder: var(--k-zinc-400);
+    --k-input-label: var(--k-zinc-900);
+    --k-input-icon: var(--k-zinc-500);
+    --k-input-icon-focus: var(--k-zinc-900);
+    --k-input-error: var(--k-red-500);
     --k-input-error-ring: rgba(239, 68, 68, 0.1);
-    --k-input-desc: #71717a;
-    --k-input-disabled-bg: #f4f4f5;
+    --k-input-desc: var(--k-zinc-500);
+    --k-input-disabled-bg: var(--k-zinc-100);
 }
 
 .dark .k-input-wrapper {
-    --k-input-bg: #18181b;
-    --k-input-border: #3f3f46;
-    --k-input-border-focus: #ffffff;
+    --k-input-bg: var(--k-zinc-900);
+    --k-input-border: var(--k-zinc-700);
+    --k-input-border-focus: var(--k-white);
     --k-input-ring: rgba(255, 255, 255, 0.1);
-    --k-input-text: #f4f4f5;
-    --k-input-placeholder: #71717a;
-    --k-input-label: #f4f4f5;
-    --k-input-icon: #a1a1aa;
-    --k-input-icon-focus: #ffffff;
-    --k-input-disabled-bg: #27272a;
+    --k-input-text: var(--k-zinc-100);
+    --k-input-placeholder: var(--k-zinc-500);
+    --k-input-label: var(--k-zinc-100);
+    --k-input-icon: var(--k-zinc-400);
+    --k-input-icon-focus: var(--k-white);
+    --k-input-disabled-bg: var(--k-zinc-800);
 }
 
 .k-input-label {

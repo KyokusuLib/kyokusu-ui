@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, provide, watch, onUnmounted } from 'vue'
+import { ref, provide, watch, nextTick, useId } from 'vue'
 import { useDropdownMenu } from './composables/useDropdownMenu'
 import DropdownMenuItem from './DropdownMenuItem.vue'
 import type { DropdownMenuProps, MenuItem, SelectionType } from './types'
@@ -31,6 +31,7 @@ const emit = defineEmits<{
 }>()
 
 const openSubmenuCount = ref(0)
+const menuId = useId()
 provide('dropdown-open-submenu-count', openSubmenuCount)
 
 const {
@@ -42,7 +43,8 @@ const {
     onTriggerMouseEnter,
     onTriggerMouseLeave,
     onMenuMouseEnter,
-    onMenuMouseLeave
+    onMenuMouseLeave,
+    hide
 } = useDropdownMenu({
     placement: props.placement,
     offset: props.offset,
@@ -83,27 +85,59 @@ const onSelect = (item: MenuItem) => {
     }
 }
 
-// Prevent page scroll while menu is open
-const preventScroll = (e: Event) => {
-    // Allow scrolling inside the dropdown menu itself
-    const target = e.target as HTMLElement
-    if (target.closest?.('.k-dropdown-menu')) return
-    e.preventDefault()
+const getMenuItems = () =>
+    Array.from(menuRef.value?.querySelectorAll<HTMLElement>('[role="menuitem"]:not([aria-disabled="true"])') ?? [])
+
+const focusItem = (index: number) => {
+    const items = getMenuItems()
+    if (items.length === 0) return
+    const next = (index + items.length) % items.length
+    items[next]?.focus()
 }
 
-watch(isOpen, (open) => {
-    if (open) {
-        document.addEventListener('wheel', preventScroll, { passive: false })
-        document.addEventListener('touchmove', preventScroll, { passive: false })
-    } else {
-        document.removeEventListener('wheel', preventScroll)
-        document.removeEventListener('touchmove', preventScroll)
-    }
-})
+const onMenuKeydown = (event: KeyboardEvent) => {
+    const items = getMenuItems()
+    const currentIndex = items.indexOf(document.activeElement as HTMLElement)
 
-onUnmounted(() => {
-    document.removeEventListener('wheel', preventScroll)
-    document.removeEventListener('touchmove', preventScroll)
+    switch (event.key) {
+        case 'ArrowDown':
+            event.preventDefault()
+            focusItem(currentIndex + 1)
+            break
+        case 'ArrowUp':
+            event.preventDefault()
+            focusItem(currentIndex < 0 ? items.length - 1 : currentIndex - 1)
+            break
+        case 'Home':
+            event.preventDefault()
+            focusItem(0)
+            break
+        case 'End':
+            event.preventDefault()
+            focusItem(items.length - 1)
+            break
+        case 'Enter':
+        case ' ':
+            if (currentIndex >= 0) {
+                event.preventDefault()
+                items[currentIndex].click()
+            }
+            break
+        case 'Escape':
+            event.preventDefault()
+            hide()
+            triggerRef.value?.querySelector<HTMLElement>('button, [tabindex]')?.focus()
+            break
+        case 'Tab':
+            hide()
+            break
+    }
+}
+
+watch(isOpen, async (open) => {
+    if (!open || props.trigger !== 'click') return
+    await nextTick()
+    focusItem(0)
 })
 </script>
 
@@ -111,6 +145,9 @@ onUnmounted(() => {
     <div class="k-dropdown-wrapper" ref="triggerRef">
         <div
             class="k-dropdown-trigger"
+            aria-haspopup="menu"
+            :aria-expanded="isOpen"
+            :aria-controls="menuId"
             @click="onTriggerClick"
             @mouseenter="onTriggerMouseEnter"
             @mouseleave="onTriggerMouseLeave"
@@ -122,11 +159,13 @@ onUnmounted(() => {
             <Transition name="k-dropdown">
                 <ul
                     v-if="isOpen"
+                    :id="menuId"
                     ref="menuRef"
                     class="k-dropdown-menu"
                     :style="menuStyle"
                     @mouseenter="onMenuMouseEnter"
                     @mouseleave="handleMenuMouseLeave"
+                    @keydown="onMenuKeydown"
                     role="menu"
                 >
                     <DropdownMenuItem
@@ -155,18 +194,18 @@ onUnmounted(() => {
 }
 
 .k-dropdown-menu {
-    z-index: 9999;
-    background-color: #ffffff;
+    z-index: var(--k-z-popover);
+    background-color: var(--k-white);
     border-radius: 8px;
     box-shadow: 0 4px 24px rgba(0, 0, 0, 0.12), 0 0 0 1px rgba(0, 0, 0, 0.05);
     padding: 4px;
     list-style: none;
     margin: 0;
-    border : 1px solid #161616;
+    border : 1px solid var(--k-neutral-900);
 }
 
 .dark .k-dropdown-menu {
-    background-color: #27272a;
+    background-color: var(--k-zinc-800);
     box-shadow: 0 4px 24px rgba(0, 0, 0, 0.4), 0 0 0 1px rgba(255, 255, 255, 0.1);
     border-color: rgba(211, 211, 211, 0.4);
 }

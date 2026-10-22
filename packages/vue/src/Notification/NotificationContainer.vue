@@ -2,6 +2,7 @@
 import { computed } from "vue";
 import NotificationItemComponent from "./NotificationItem.vue";
 import type { NotificationItem } from "./NotificationItem.vue";
+import { useKyokusuLocale } from "../i18n";
 
 const props = withDefaults(defineProps<{
     notifications: NotificationItem[];
@@ -11,10 +12,17 @@ const props = withDefaults(defineProps<{
 });
 
 const emit = defineEmits(["remove"]);
+const { t } = useKyokusuLocale();
 </script>
 
 <template>
-    <div class="k-notification-container" :class="`k-notification-container--${position}`">
+    <div
+        class="k-notification-container"
+        :class="`k-notification-container--${position}`"
+        role="region"
+        :aria-label="t('notifications')"
+        aria-live="polite"
+    >
         <TransitionGroup 
             name="k-notification"
         >
@@ -31,7 +39,7 @@ const emit = defineEmits(["remove"]);
 <style>
 .k-notification-container {
     position: fixed;
-    z-index: 9999;
+    z-index: var(--k-z-popover);
     display: flex;
     flex-direction: column;
     gap: 8px;

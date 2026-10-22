@@ -49,16 +49,16 @@ const separatorStyle = computed(() => {
     border: 0;
     margin: 0;
     
-    --k-sep-color: #e4e4e7;
-    --k-sep-label-color: #71717a;
-    --k-sep-label-bg: #ffffff;
+    --k-sep-color: var(--k-zinc-200);
+    --k-sep-label-color: var(--k-zinc-500);
+    --k-sep-label-bg: var(--k-white);
     --k-sep-spacing: 16px;
 }
 
 .dark .k-separator {
-    --k-sep-color: #3f3f46;
-    --k-sep-label-color: #a1a1aa;
-    --k-sep-label-bg: #18181b;
+    --k-sep-color: var(--k-zinc-700);
+    --k-sep-label-color: var(--k-zinc-400);
+    --k-sep-label-bg: var(--k-zinc-900);
 }
 
 .k-separator--horizontal {

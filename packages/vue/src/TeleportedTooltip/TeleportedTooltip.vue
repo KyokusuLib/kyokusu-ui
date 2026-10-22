@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { useId } from 'vue';
 import { useTeleportedTooltip } from './useTeleportedTooltip';
 import './TeleportedTooltip.css';
 
@@ -14,6 +15,7 @@ const props = withDefaults(
 	},
 );
 
+const tooltipId = useId();
 const { triggerRef, visible, pos, show, hide } = useTeleportedTooltip(props.position);
 </script>
 
@@ -23,14 +25,18 @@ const { triggerRef, visible, pos, show, hide } = useTeleportedTooltip(props.posi
 		class="k-ttip-wrapper"
 		@mouseenter="show(delay)"
 		@mouseleave="hide"
+		@focusin="show(delay)"
+		@focusout="hide"
 	>
 		<slot />
 		<Teleport to="body">
 			<Transition name="k-ttip">
 				<div
 					v-if="visible && text"
+					:id="tooltipId"
 					:style="pos"
 					class="k-ttip-content"
+					role="tooltip"
 				>
 					<div class="k-ttip-box">
 						{{ text }}

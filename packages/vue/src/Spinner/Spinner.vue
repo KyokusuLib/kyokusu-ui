@@ -1,16 +1,20 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import type { SpinnerProps } from './types'
+import { useKyokusuLocale } from '../i18n'
 
 interface Props {
     size?: SpinnerProps['size']
     variant?: SpinnerProps['variant']
+    locale?: string
 }
 
 const props = withDefaults(defineProps<Props>(), {
     size: 'md',
     variant: 'default'
 })
+
+const { t } = useKyokusuLocale(() => props.locale)
 
 const spinnerClasses = computed(() => {
     const classes = ['k-spinner']
@@ -38,7 +42,7 @@ const spinnerStyle = computed(() => {
 </script>
 
 <template>
-    <span :class="spinnerClasses" :style="spinnerStyle" role="status" aria-label="Loading">
+    <span :class="spinnerClasses" :style="spinnerStyle" role="status" :aria-label="t('loading')">
         <svg class="k-spinner-svg" viewBox="0 0 50 50">
             <circle 
                 class="k-spinner-circle" 
@@ -58,13 +62,13 @@ const spinnerStyle = computed(() => {
     align-items: center;
     justify-content: center;
     
-    --k-spinner-color: #18181b;
-    --k-spinner-track: #e4e4e7;
+    --k-spinner-color: var(--k-zinc-900);
+    --k-spinner-track: var(--k-zinc-200);
 }
 
 .dark .k-spinner {
-    --k-spinner-color: #f4f4f5;
-    --k-spinner-track: #3f3f46;
+    --k-spinner-color: var(--k-zinc-100);
+    --k-spinner-track: var(--k-zinc-700);
 }
 
 .k-spinner-svg {
@@ -104,22 +108,22 @@ const spinnerStyle = computed(() => {
 
 /* Variants */
 .k-spinner--primary {
-    --k-spinner-color: #ffa500;
-    --k-spinner-track: #dbeafe;
+    --k-spinner-color: var(--k-orange-500);
+    --k-spinner-track: var(--k-blue-100);
 }
 
 .dark .k-spinner--primary {
-    --k-spinner-track: #1e3a5f;
+    --k-spinner-track: var(--k-blue-900);
 }
 
 .k-spinner--secondary {
-    --k-spinner-color: #71717a;
-    --k-spinner-track: #f4f4f5;
+    --k-spinner-color: var(--k-zinc-500);
+    --k-spinner-track: var(--k-zinc-100);
 }
 
 .dark .k-spinner--secondary {
-    --k-spinner-color: #a1a1aa;
-    --k-spinner-track: #27272a;
+    --k-spinner-color: var(--k-zinc-400);
+    --k-spinner-track: var(--k-zinc-800);
 }
 
 @keyframes k-spinner-rotate {

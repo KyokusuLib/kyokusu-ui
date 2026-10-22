@@ -2,6 +2,7 @@
 import { nextTick, onMounted, onUnmounted, ref, computed, useId, useAttrs } from "vue";
 import { PhCalendarBlank, PhCaretLeft, PhCaretRight } from "@phosphor-icons/vue";
 import { useDatepicker } from "./useDatepicker";
+import { useKyokusuLocale } from "../i18n";
 
 defineOptions({ inheritAttrs: false });
 
@@ -28,6 +29,7 @@ const containerRef = ref<HTMLElement | null>(null);
 const yearListRef = ref<HTMLElement | null>(null);
 
 const localeRef = computed(() => props.locale);
+const { t } = useKyokusuLocale(localeRef);
 
 const typeRef = computed(() => props.type);
 
@@ -78,7 +80,7 @@ const switchToYearMode = async () => {
     await nextTick();
     if (yearListRef.value) {
         const selectedEl = yearListRef.value.querySelector(".k-datepicker-year--selected");
-        if (selectedEl) selectedEl.scrollIntoView({ block: "center" });
+        if (selectedEl) selectedEl?.scrollIntoView?.({ block: "center" });
     }
 };
 
@@ -112,7 +114,7 @@ onUnmounted(() => {
                     'k-datepicker-input--disabled': disabled,
                     'k-datepicker-input--error': error
                 }"
-                :placeholder="placeholder || (locale.startsWith('ru') ? 'ДД.ММ.ГГГГ' : 'DD.MM.YYYY')"
+                :placeholder="placeholder || t('datePlaceholder')"
             />
             <div class="k-datepicker-icon">
                 <PhCalendarBlank :size="18" />
@@ -216,47 +218,47 @@ onUnmounted(() => {
     width: 100%;
     position: relative;
 
-    --k-dp-bg: #ffffff;
-    --k-dp-border: #e4e4e7;
-    --k-dp-border-focus: #18181b;
+    --k-dp-bg: var(--k-white);
+    --k-dp-border: var(--k-zinc-200);
+    --k-dp-border-focus: var(--k-zinc-900);
     --k-dp-ring: rgba(24, 24, 27, 0.1);
-    --k-dp-text: #18181b;
-    --k-dp-placeholder: #a1a1aa;
-    --k-dp-label: #18181b;
-    --k-dp-icon: #71717a;
-    --k-dp-disabled-bg: #f4f4f5;
-    --k-dp-error: #ef4444;
+    --k-dp-text: var(--k-zinc-900);
+    --k-dp-placeholder: var(--k-zinc-400);
+    --k-dp-label: var(--k-zinc-900);
+    --k-dp-icon: var(--k-zinc-500);
+    --k-dp-disabled-bg: var(--k-zinc-100);
+    --k-dp-error: var(--k-red-500);
     --k-dp-error-ring: rgba(239, 68, 68, 0.1);
     
-    --k-dp-popup-bg: #ffffff;
-    --k-dp-popup-border: #e4e4e7;
+    --k-dp-popup-bg: var(--k-white);
+    --k-dp-popup-border: var(--k-zinc-200);
     --k-dp-popup-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -4px rgba(0, 0, 0, 0.1);
     
-    --k-dp-hover-bg: #f4f4f5;
-    --k-dp-selected-bg: #18181b;
-    --k-dp-selected-text: #ffffff;
-    --k-dp-today-border: #e4e4e7;
+    --k-dp-hover-bg: var(--k-zinc-100);
+    --k-dp-selected-bg: var(--k-zinc-900);
+    --k-dp-selected-text: var(--k-white);
+    --k-dp-today-border: var(--k-zinc-200);
 }
 
 .dark .k-datepicker-wrapper {
-    --k-dp-bg: #18181b;
-    --k-dp-border: #3f3f46;
-    --k-dp-border-focus: #ffffff;
+    --k-dp-bg: var(--k-zinc-900);
+    --k-dp-border: var(--k-zinc-700);
+    --k-dp-border-focus: var(--k-white);
     --k-dp-ring: rgba(255, 255, 255, 0.1);
-    --k-dp-text: #f4f4f5;
-    --k-dp-placeholder: #71717a;
-    --k-dp-label: #f4f4f5;
-    --k-dp-icon: #a1a1aa;
-    --k-dp-disabled-bg: #27272a;
+    --k-dp-text: var(--k-zinc-100);
+    --k-dp-placeholder: var(--k-zinc-500);
+    --k-dp-label: var(--k-zinc-100);
+    --k-dp-icon: var(--k-zinc-400);
+    --k-dp-disabled-bg: var(--k-zinc-800);
     
-    --k-dp-popup-bg: #18181b;
-    --k-dp-popup-border: #3f3f46;
+    --k-dp-popup-bg: var(--k-zinc-900);
+    --k-dp-popup-border: var(--k-zinc-700);
     --k-dp-popup-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.5), 0 8px 10px -6px rgba(0, 0, 0, 0.5);
     
-    --k-dp-hover-bg: #27272a;
-    --k-dp-selected-bg: #ffffff;
-    --k-dp-selected-text: #18181b;
-    --k-dp-today-border: #3f3f46;
+    --k-dp-hover-bg: var(--k-zinc-800);
+    --k-dp-selected-bg: var(--k-white);
+    --k-dp-selected-text: var(--k-zinc-900);
+    --k-dp-today-border: var(--k-zinc-700);
 }
 
 .k-datepicker-label {
@@ -332,7 +334,7 @@ onUnmounted(() => {
     position: absolute;
     top: calc(100% + 6px);
     left: 0;
-    z-index: 50;
+    z-index: var(--k-z-dropdown);
     width: 280px;
     background-color: var(--k-dp-popup-bg);
     border: 1px solid var(--k-dp-popup-border);

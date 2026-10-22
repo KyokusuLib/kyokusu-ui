@@ -1,5 +1,7 @@
 <script lang="ts" setup>
 import { ref, computed, onMounted, onBeforeUnmount, useId } from 'vue';
+import { useListNavigation } from '../composables/useListNavigation';
+import { useKyokusuLocale } from '../i18n';
 
 interface Option {
   value: string;
@@ -12,17 +14,21 @@ const props = defineProps<{
   options: Option[];
   placeholder?: string;
   disabled?: boolean;
+  locale?: string;
 }>();
 
 const model = defineModel<string>({ default: '' });
+const { t } = useKyokusuLocale(() => props.locale);
 const selectId = props.id || useId();
+const listboxId = useId();
+const optionId = (index: number) => `${listboxId}-option-${index}`;
 
 const isOpen = ref(false);
 const containerRef = ref<HTMLElement | null>(null);
 
 const selectedLabel = computed(() => {
   const selected = props.options.find(opt => opt.value === model.value);
-  return selected ? selected.label : (props.placeholder || 'Select...');
+  return selected ? selected.label : (props.placeholder || t('selectPlaceholder'));
 });
 
 const toggleOpen = () => {
@@ -34,6 +40,15 @@ const selectOption = (value: string) => {
   model.value = value;
   isOpen.value = false;
 };
+
+const { activeIndex, activeDescendant, handleKeydown } = useListNavigation({
+  items: () => props.options,
+  isOpen,
+  optionId,
+  onSelect: (option) => selectOption(option.value),
+  onOpen: () => { if (!props.disabled) isOpen.value = true; },
+  onClose: () => { isOpen.value = false; },
+});
 
 const handleClickOutside = (event: MouseEvent) => {
   if (containerRef.value && !containerRef.value.contains(event.target as Node)) {
@@ -68,7 +83,13 @@ onBeforeUnmount(() => {
         class="k-select-trigger"
         :class="{ 'k-select-trigger--open': isOpen }"
         :disabled="disabled"
+        role="combobox"
+        aria-haspopup="listbox"
+        :aria-expanded="isOpen"
+        :aria-controls="listboxId"
+        :aria-activedescendant="activeDescendant"
         @click="toggleOpen"
+        @keydown="handleKeydown"
       >
         <span class="k-select-value" :class="{ 'k-select-value--placeholder': !model && placeholder }">
           {{ selectedLabel }}
@@ -82,13 +103,25 @@ onBeforeUnmount(() => {
       </button>
 
       <transition name="k-select-fade">
-        <ul v-if="isOpen" class="k-select-dropdown">
-          <li 
-            v-for="option in options" 
+        <ul
+          v-if="isOpen"
+          :id="listboxId"
+          class="k-select-dropdown"
+          role="listbox"
+        >
+          <li
+            v-for="(option, index) in options"
+            :id="optionId(index)"
             :key="option.value"
             class="k-select-option"
-            :class="{ 'k-select-option--selected': model === option.value }"
+            :class="{
+              'k-select-option--selected': model === option.value,
+              'k-select-option--active': activeIndex === index
+            }"
+            role="option"
+            :aria-selected="model === option.value"
             @click="selectOption(option.value)"
+            @mousemove="activeIndex = index"
           >
             {{ option.label }}
           </li>
@@ -105,21 +138,21 @@ onBeforeUnmount(() => {
   gap: 6px;
   width: 100%;
 
-  --k-select-bg: #ffffff;
-  --k-select-bg-hover: #fafafa;
-  --k-select-bg-disabled: #f4f4f5;
-  --k-select-border: #e4e4e7;
-  --k-select-border-hover: #d4d4d8;
-  --k-select-text: #18181b;
-  --k-select-text-disabled: #a1a1aa;
-  --k-select-placeholder: #a1a1aa;
-  --k-select-label: #18181b;
+  --k-select-bg: var(--k-white);
+  --k-select-bg-hover: var(--k-zinc-50);
+  --k-select-bg-disabled: var(--k-zinc-100);
+  --k-select-border: var(--k-zinc-200);
+  --k-select-border-hover: var(--k-zinc-300);
+  --k-select-text: var(--k-zinc-900);
+  --k-select-text-disabled: var(--k-zinc-400);
+  --k-select-placeholder: var(--k-zinc-400);
+  --k-select-label: var(--k-zinc-900);
   
-  --k-select-dropdown-bg: #ffffff;
-  --k-select-dropdown-border: #e4e4e7;
-  --k-select-option-hover: #f4f4f5;
-  --k-select-option-selected: #18181b;
-  --k-select-option-selected-text: #ffffff;
+  --k-select-dropdown-bg: var(--k-white);
+  --k-select-dropdown-border: var(--k-zinc-200);
+  --k-select-option-hover: var(--k-zinc-100);
+  --k-select-option-selected: var(--k-zinc-900);
+  --k-select-option-selected-text: var(--k-white);
 
   --k-select-radius: 8px;
   --k-select-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
@@ -127,21 +160,21 @@ onBeforeUnmount(() => {
 }
 
 .dark .k-select-container {
-  --k-select-bg: #18181b;
-  --k-select-bg-hover: #27272a;
-  --k-select-bg-disabled: #27272a;
-  --k-select-border: #3f3f46;
-  --k-select-border-hover: #52525b;
-  --k-select-text: #f4f4f5;
-  --k-select-text-disabled: #52525b;
-  --k-select-placeholder: #71717a;
-  --k-select-label: #ffffff;
+  --k-select-bg: var(--k-zinc-900);
+  --k-select-bg-hover: var(--k-zinc-800);
+  --k-select-bg-disabled: var(--k-zinc-800);
+  --k-select-border: var(--k-zinc-700);
+  --k-select-border-hover: var(--k-zinc-600);
+  --k-select-text: var(--k-zinc-100);
+  --k-select-text-disabled: var(--k-zinc-600);
+  --k-select-placeholder: var(--k-zinc-500);
+  --k-select-label: var(--k-white);
   
-  --k-select-dropdown-bg: #18181b;
-  --k-select-dropdown-border: #3f3f46;
-  --k-select-option-hover: #27272a;
-  --k-select-option-selected: #ffffff;
-  --k-select-option-selected-text: #18181b;
+  --k-select-dropdown-bg: var(--k-zinc-900);
+  --k-select-dropdown-border: var(--k-zinc-700);
+  --k-select-option-hover: var(--k-zinc-800);
+  --k-select-option-selected: var(--k-white);
+  --k-select-option-selected-text: var(--k-zinc-900);
   
   --k-select-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.3);
   --k-select-dropdown-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.5), 0 4px 6px -4px rgba(0, 0, 0, 0.5);
@@ -241,7 +274,7 @@ onBeforeUnmount(() => {
   top: calc(100% + 6px);
   left: 0;
   right: 0;
-  z-index: 50;
+  z-index: var(--k-z-dropdown);
   background-color: var(--k-select-dropdown-bg);
   border: 1px solid var(--k-select-dropdown-border);
   border-radius: var(--k-select-radius);
@@ -273,7 +306,8 @@ onBeforeUnmount(() => {
   transition: background-color 0.1s ease, color 0.1s ease;
 }
 
-.k-select-option:hover {
+.k-select-option:hover,
+.k-select-option--active {
   background-color: var(--k-select-option-hover);
 }
 

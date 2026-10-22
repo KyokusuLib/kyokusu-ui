@@ -50,10 +50,10 @@ provide(AccordionKey, {
 }
 
 .k-accordion--border {
-    border: 1px solid #e4e4e7;
+    border: 1px solid var(--k-zinc-200);
 }
 
 .dark .k-accordion--border {
-    border-color: #27272a;
+    border-color: var(--k-zinc-800);
 }
 </style>

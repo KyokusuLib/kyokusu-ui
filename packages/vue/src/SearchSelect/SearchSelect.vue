@@ -1,6 +1,8 @@
 <script lang="ts" setup>
 import { ref, computed, onMounted, onUnmounted, nextTick, useId, useAttrs } from "vue";
 import { PhCaretDown, PhMagnifyingGlass } from "@phosphor-icons/vue";
+import { useListNavigation } from "../composables/useListNavigation";
+import { useKyokusuLocale } from "../i18n";
 
 defineOptions({ inheritAttrs: false });
 
@@ -17,6 +19,7 @@ interface Props {
     placeholder?: string;
     error?: string;
     disabled?: boolean;
+    locale?: string;
 }
 
 const props = withDefaults(defineProps<Props>(), {
@@ -29,7 +32,11 @@ const isOpen = ref(false);
 const searchQuery = ref("");
 const wrapperRef = ref<HTMLElement | null>(null);
 const searchInputRef = ref<HTMLInputElement | null>(null);
+const triggerRef = ref<HTMLElement | null>(null);
+const { t } = useKyokusuLocale(() => props.locale);
 const selectId = props.id || useId();
+const listboxId = useId();
+const optionId = (index: number) => `${listboxId}-option-${index}`;
 const attrs = useAttrs();
 
 const normalizedOptions = computed<SearchSelectOption[]>(() => {
@@ -52,19 +59,42 @@ const filteredSearchItems = computed(() => {
     );
 });
 
+const openDropdown = () => {
+    if (props.disabled || isOpen.value) return;
+    isOpen.value = true;
+    searchQuery.value = "";
+    nextTick(() => searchInputRef.value?.focus());
+};
+
+const closeDropdown = (restoreFocus = false) => {
+    isOpen.value = false;
+    searchQuery.value = "";
+    if (restoreFocus) nextTick(() => triggerRef.value?.focus());
+};
+
 const toggleDropdown = () => {
     if (props.disabled) return;
-    isOpen.value = !isOpen.value;
-    if (isOpen.value) {
-        searchQuery.value = "";
-        nextTick(() => searchInputRef.value?.focus());
-    }
+    if (isOpen.value) closeDropdown();
+    else openDropdown();
 };
 
 const selectItem = (item: SearchSelectOption) => {
     emit("update:modelValue", item.id);
-    isOpen.value = false;
-    searchQuery.value = "";
+    closeDropdown(true);
+};
+
+const { activeIndex, activeDescendant, handleKeydown } = useListNavigation({
+    items: () => filteredSearchItems.value,
+    isOpen,
+    optionId,
+    onSelect: (item) => selectItem(item),
+    onOpen: openDropdown,
+    onClose: () => closeDropdown(true),
+    selectOnSpace: false,
+});
+
+const onSearchInput = () => {
+    activeIndex.value = filteredSearchItems.value.length > 0 ? 0 : -1;
 };
 
 const handleOutsideClick = (event: MouseEvent) => {
@@ -89,17 +119,26 @@ onUnmounted(() => {
         </label>
         
         <div class="k-searchselect-trigger-container">
-            <div 
+            <div
+                ref="triggerRef"
                 @click="toggleDropdown"
+                @keydown="handleKeydown"
                 class="k-searchselect-trigger"
                 :class="{
                     'k-searchselect-trigger--error': error,
                     'k-searchselect-trigger--open': isOpen,
                     'k-searchselect-trigger--disabled': disabled
                 }"
+                role="combobox"
+                tabindex="0"
+                aria-haspopup="listbox"
+                :aria-expanded="isOpen"
+                :aria-controls="listboxId"
+                :aria-activedescendant="activeDescendant"
+                :aria-disabled="disabled || undefined"
             >
                 <span class="k-searchselect-value" :class="{ 'k-searchselect-value--selected': currentLabel }">
-                    {{ currentLabel || placeholder || 'Выберите из списка' }}
+                    {{ currentLabel || placeholder || t('selectPlaceholder') }}
                 </span>
                 <div class="k-searchselect-icon">
                     <PhCaretDown :size="16" weight="bold" />
@@ -115,8 +154,13 @@ onUnmounted(() => {
                                 v-model="searchQuery"
                                 type="text"
                                 class="k-searchselect-search-input"
-                                placeholder="Поиск..."
+                                :placeholder="t('searchPlaceholder')"
+                                :aria-controls="listboxId"
+                                :aria-activedescendant="activeDescendant"
+                                aria-autocomplete="list"
                                 @click.stop
+                                @input="onSearchInput"
+                                @keydown="handleKeydown"
                             />
                             <div class="k-searchselect-search-icon">
                                 <PhMagnifyingGlass :size="16" />
@@ -124,19 +168,26 @@ onUnmounted(() => {
                         </div>
                     </div>
                     
-                    <ul class="k-searchselect-list">
-                        <li 
-                            v-for="item in filteredSearchItems" 
+                    <ul :id="listboxId" class="k-searchselect-list" role="listbox">
+                        <li
+                            v-for="(item, index) in filteredSearchItems"
+                            :id="optionId(index)"
                             :key="item.id"
                             @click.stop="selectItem(item)"
+                            @mousemove="activeIndex = index"
                             class="k-searchselect-item"
-                            :class="{ 'k-searchselect-item--selected': modelValue === item.id }"
+                            :class="{
+                                'k-searchselect-item--selected': modelValue === item.id,
+                                'k-searchselect-item--active': activeIndex === index
+                            }"
+                            role="option"
+                            :aria-selected="modelValue === item.id"
                         >
                             {{ item.label }}
                             <div v-if="modelValue === item.id" class="k-searchselect-item-dot"></div>
                         </li>
-                        <li v-if="filteredSearchItems.length === 0" class="k-searchselect-empty">
-                            Ничего не найдено
+                        <li v-if="filteredSearchItems.length === 0" class="k-searchselect-empty" role="presentation">
+                            {{ t('noResults') }}
                         </li>
                     </ul>
                 </div>
@@ -156,57 +207,57 @@ onUnmounted(() => {
     gap: 6px;
     font-family: inherit;
 
-    --k-searchselect-bg: #ffffff;
-    --k-searchselect-border: #e4e4e7;
-    --k-searchselect-border-hover: #d4d4d8;
-    --k-searchselect-border-focus: #eab308;
+    --k-searchselect-bg: var(--k-white);
+    --k-searchselect-border: var(--k-zinc-200);
+    --k-searchselect-border-hover: var(--k-zinc-300);
+    --k-searchselect-border-focus: var(--k-yellow-500);
     --k-searchselect-ring: rgba(234, 179, 8, 0.1);
-    --k-searchselect-text: #18181b;
-    --k-searchselect-placeholder: #a1a1aa;
-    --k-searchselect-label: #71717a;
-    --k-searchselect-icon: #a1a1aa;
-    --k-searchselect-disabled-bg: #f4f4f5;
-    --k-searchselect-error: #ef4444;
+    --k-searchselect-text: var(--k-zinc-900);
+    --k-searchselect-placeholder: var(--k-zinc-400);
+    --k-searchselect-label: var(--k-zinc-500);
+    --k-searchselect-icon: var(--k-zinc-400);
+    --k-searchselect-disabled-bg: var(--k-zinc-100);
+    --k-searchselect-error: var(--k-red-500);
     
-    --k-searchselect-popup-bg: #ffffff;
-    --k-searchselect-popup-border: #e4e4e7;
+    --k-searchselect-popup-bg: var(--k-white);
+    --k-searchselect-popup-border: var(--k-zinc-200);
     --k-searchselect-popup-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
     
-    --k-searchselect-input-bg: #f4f4f5;
+    --k-searchselect-input-bg: var(--k-zinc-100);
     
-    --k-searchselect-item-text: #52525b;
-    --k-searchselect-item-hover-bg: #f4f4f5;
-    --k-searchselect-item-hover-text: #18181b;
+    --k-searchselect-item-text: var(--k-zinc-600);
+    --k-searchselect-item-hover-bg: var(--k-zinc-100);
+    --k-searchselect-item-hover-text: var(--k-zinc-900);
     
-    --k-searchselect-selected-bg: #fefce8;
-    --k-searchselect-selected-text: #ca8a04;
-    --k-searchselect-selected-dot: #eab308;
+    --k-searchselect-selected-bg: var(--k-yellow-50);
+    --k-searchselect-selected-text: var(--k-yellow-600);
+    --k-searchselect-selected-dot: var(--k-yellow-500);
 }
 
 .dark .k-searchselect-wrapper {
     --k-searchselect-bg: rgba(24, 24, 27, 0.5);
-    --k-searchselect-border: #27272a;
-    --k-searchselect-border-hover: #3f3f46;
+    --k-searchselect-border: var(--k-zinc-800);
+    --k-searchselect-border-hover: var(--k-zinc-700);
     --k-searchselect-border-focus: rgba(234, 179, 8, 0.5);
     --k-searchselect-ring: rgba(234, 179, 8, 0.05);
-    --k-searchselect-text: #e4e4e7;
-    --k-searchselect-placeholder: #71717a;
-    --k-searchselect-label: #71717a;
-    --k-searchselect-icon: #71717a;
-    --k-searchselect-disabled-bg: #18181b;
+    --k-searchselect-text: var(--k-zinc-200);
+    --k-searchselect-placeholder: var(--k-zinc-500);
+    --k-searchselect-label: var(--k-zinc-500);
+    --k-searchselect-icon: var(--k-zinc-500);
+    --k-searchselect-disabled-bg: var(--k-zinc-900);
     
-    --k-searchselect-popup-bg: #18181b;
-    --k-searchselect-popup-border: #27272a;
+    --k-searchselect-popup-bg: var(--k-zinc-900);
+    --k-searchselect-popup-border: var(--k-zinc-800);
     --k-searchselect-popup-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
     
     --k-searchselect-input-bg: rgba(39, 39, 42, 0.5);
     
-    --k-searchselect-item-text: #a1a1aa;
-    --k-searchselect-item-hover-bg: #27272a;
-    --k-searchselect-item-hover-text: #e4e4e7;
+    --k-searchselect-item-text: var(--k-zinc-400);
+    --k-searchselect-item-hover-bg: var(--k-zinc-800);
+    --k-searchselect-item-hover-text: var(--k-zinc-200);
     
     --k-searchselect-selected-bg: rgba(234, 179, 8, 0.1);
-    --k-searchselect-selected-text: #eab308;
+    --k-searchselect-selected-text: var(--k-yellow-500);
 }
 
 .k-searchselect-label {
@@ -285,7 +336,7 @@ onUnmounted(() => {
 
 .k-searchselect-popup {
     position: absolute;
-    z-index: 100;
+    z-index: var(--k-z-overlay);
     width: 100%;
     min-width: max-content;
     background-color: var(--k-searchselect-popup-bg);
@@ -366,7 +417,8 @@ onUnmounted(() => {
     color: var(--k-searchselect-item-text);
 }
 
-.k-searchselect-item:hover {
+.k-searchselect-item:hover,
+.k-searchselect-item--active {
     background-color: var(--k-searchselect-item-hover-bg);
     color: var(--k-searchselect-item-hover-text);
 }

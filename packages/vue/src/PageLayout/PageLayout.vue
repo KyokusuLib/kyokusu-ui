@@ -27,7 +27,7 @@ withDefaults(defineProps<Props>(), {
 }
 
 .dark .k-page-layout {
-    background: radial-gradient(at center, #27272a 0%, #09090b 90%);
+    background: radial-gradient(at center, var(--k-zinc-800) 0%, var(--k-zinc-950) 90%);
 }
 
 .k-page-layout-inner {

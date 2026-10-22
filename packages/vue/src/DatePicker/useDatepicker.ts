@@ -1,4 +1,5 @@
 import { ref, computed, type Ref } from "vue";
+import { useKyokusuLocale } from "../i18n";
 
 export interface CalendarDay {
     day: number | null;
@@ -133,8 +134,10 @@ export function useDatepicker(model: Ref<string | undefined>, locale: Ref<string
         return toISODate(new Date()) === dateStr;
     };
 
+    const { t } = useKyokusuLocale(locale);
+
     const uiLabels = computed(() => ({
-        selectYear: locale.value.startsWith("ru") ? "Выберите год" : "Select year"
+        selectYear: t("selectYear")
     }));
 
     return {

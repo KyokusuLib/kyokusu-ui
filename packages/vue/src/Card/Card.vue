@@ -46,10 +46,10 @@ const attrs = useAttrs();
 
 <style scoped>
 .k-card {
-    --k-card-bg: #ffffff;
-    --k-card-border: #e4e4e7;
-    --k-card-text: #18181b;
-    --k-card-subtle-text: #71717a;
+    --k-card-bg: var(--k-white);
+    --k-card-border: var(--k-zinc-200);
+    --k-card-text: var(--k-zinc-900);
+    --k-card-subtle-text: var(--k-zinc-500);
     --k-card-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
 
     background-color: var(--k-card-bg);
@@ -61,10 +61,10 @@ const attrs = useAttrs();
 }
 
 .dark .k-card {
-    --k-card-bg: #18181b;
-    --k-card-border: #27272a;
-    --k-card-text: #f4f4f5;
-    --k-card-subtle-text: #a1a1aa;
+    --k-card-bg: var(--k-zinc-900);
+    --k-card-border: var(--k-zinc-800);
+    --k-card-text: var(--k-zinc-100);
+    --k-card-subtle-text: var(--k-zinc-400);
     --k-card-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.5);
 }
 

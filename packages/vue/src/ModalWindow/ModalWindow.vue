@@ -1,21 +1,31 @@
 <script lang="ts" setup>
-import { toRef } from "vue";
+import { computed, ref, toRef, useId } from "vue";
 import { PhX } from "@phosphor-icons/vue";
 import { useModalLogic } from "./useModal";
+import { useKyokusuLocale } from "../i18n";
 
 interface Props {
 	modelValue: boolean;
 	title?: string;
-	width?: string;
+	/** CSS max-width value. Numbers are treated as pixels. */
+	width?: string | number;
 	height?: string;
 	centerTitle?: boolean;
+	locale?: string;
 }
 
 const props = withDefaults(defineProps<Props>(), {
 	modelValue: false,
-	width: "max-w-lg",
+	width: "32rem",
 	centerTitle: false,
 });
+
+const { t } = useKyokusuLocale(() => props.locale);
+const titleId = useId();
+const contentRef = ref<HTMLElement | null>(null);
+const widthStyle = computed(() =>
+	typeof props.width === "number" ? `${props.width}px` : props.width
+);
 
 const emit = defineEmits(["update:modelValue", "close"]);
 
@@ -24,34 +34,37 @@ const close = () => {
 	emit("close");
 };
 
-useModalLogic(toRef(props, "modelValue"), close);
+useModalLogic(toRef(props, "modelValue"), close, contentRef);
 </script>
 
 <template>
     <Teleport to="body">
         <Transition name="k-modal">
-            <div v-if="modelValue" class="k-modal-overlay" aria-labelledby="modal-title" role="dialog" aria-modal="true">
+            <div v-if="modelValue" class="k-modal-overlay" :aria-labelledby="titleId" role="dialog" aria-modal="true">
                 
                 <div class="k-modal-backdrop" @click="close"></div>
 
                 <div class="k-modal-scroll-container">
                     <div class="k-modal-centering">
-                        <div 
+                        <div
+                            ref="contentRef"
                             class="k-modal-content"
-                            :class="[width]"
+                            :style="{ maxWidth: widthStyle }"
+                            tabindex="-1"
                             @click.stop
                         >
                             <div 
                                 class="k-modal-header"
                                 :class="centerTitle ? 'k-modal-header--center' : 'k-modal-header--between'"
                             >
-                                <h3 class="k-modal-title" id="modal-title">
+                                <h3 class="k-modal-title" :id="titleId">
                                     {{ title }}
                                 </h3>
                                 <button 
                                     @click="close"
                                     class="k-modal-close"
                                     :class="[centerTitle ? 'k-modal-close--absolute' : 'k-modal-close--relative']"
+                                    :aria-label="t('closeDialog')"
                                 >
                                     <PhX :size="20" weight="bold" />
                                 </button>
@@ -75,7 +88,7 @@ useModalLogic(toRef(props, "modelValue"), close);
 <style scoped>
 .k-modal-overlay {
     position: relative;
-    z-index: 100;
+    z-index: var(--k-z-overlay);
 }
 
 .k-modal-backdrop {
@@ -114,11 +127,11 @@ useModalLogic(toRef(props, "modelValue"), close);
     transform: translate(0, 0);
     overflow: hidden;
     border-radius: 12px;
-    background-color: var(--k-modal-bg, #ffffff);
+    background-color: var(--k-modal-bg, var(--k-white));
     text-align: left;
     box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
     transition: all 0.3s ease-out;
-    border: 1px solid var(--k-modal-border, #e4e4e7);
+    border: 1px solid var(--k-modal-border, var(--k-zinc-200));
     width: 100%;
 }
 
@@ -129,28 +142,15 @@ useModalLogic(toRef(props, "modelValue"), close);
 }
 
 :global(.dark) .k-modal-content {
-    --k-modal-bg: #18181b;
-    --k-modal-border: #27272a;
+    --k-modal-bg: var(--k-zinc-900);
+    --k-modal-border: var(--k-zinc-800);
 }
-
-.max-w-xs { max-width: 20rem; }
-.max-w-sm { max-width: 24rem; }
-.max-w-md { max-width: 28rem; }
-.max-w-lg { max-width: 32rem; }
-.max-w-xl { max-width: 36rem; }
-.max-w-2xl { max-width: 42rem; }
-.max-w-3xl { max-width: 48rem; }
-.max-w-4xl { max-width: 56rem; }
-.max-w-5xl { max-width: 64rem; }
-.max-w-6xl { max-width: 72rem; }
-.max-w-7xl { max-width: 80rem; }
-.max-w-full { max-width: 100%; }
 
 .k-modal-header {
     display: flex;
     align-items: center;
     padding: 16px 24px;
-    border-bottom: 1px solid var(--k-modal-border, #e4e4e7);
+    border-bottom: 1px solid var(--k-modal-border, var(--k-zinc-200));
 }
 
 .k-modal-header--between {
@@ -165,17 +165,17 @@ useModalLogic(toRef(props, "modelValue"), close);
     font-size: 18px;
     font-weight: 600;
     line-height: 1.5;
-    color: var(--k-modal-title, #18181b);
+    color: var(--k-modal-title, var(--k-zinc-900));
     cursor: default;
     margin: 0;
 }
 
 .dark .k-modal-title {
-    --k-modal-title: #ffffff;
+    --k-modal-title: var(--k-white);
 }
 
 .k-modal-close {
-    color: var(--k-modal-close, #a1a1aa);
+    color: var(--k-modal-close, var(--k-zinc-400));
     background: transparent;
     border: none;
     cursor: pointer;
@@ -189,11 +189,11 @@ useModalLogic(toRef(props, "modelValue"), close);
 }
 
 .k-modal-close:hover {
-    color: var(--k-modal-close-hover, #71717a);
+    color: var(--k-modal-close-hover, var(--k-zinc-500));
 }
 
 .dark .k-modal-close {
-    --k-modal-close-hover: #d4d4d8;
+    --k-modal-close-hover: var(--k-zinc-300);
 }
 
 .k-modal-close--absolute {
@@ -210,9 +210,9 @@ useModalLogic(toRef(props, "modelValue"), close);
 }
 
 .k-modal-footer {
-    background-color: var(--k-modal-footer-bg, #f4f4f5);
+    background-color: var(--k-modal-footer-bg, var(--k-zinc-100));
     padding: 12px 24px;
-    border-top: 1px solid var(--k-modal-border, #e4e4e7);
+    border-top: 1px solid var(--k-modal-border, var(--k-zinc-200));
     display: flex;
     justify-content: flex-end;
     gap: 12px;

@@ -1,5 +1,7 @@
 <script lang="ts" setup>
 import { ref, computed, onMounted, onUnmounted, nextTick, useId, useAttrs } from "vue";
+import { useListNavigation } from "../composables/useListNavigation";
+import { useKyokusuLocale } from "../i18n";
 
 defineOptions({ inheritAttrs: false });
 
@@ -17,6 +19,7 @@ interface Props {
 	error?: string;
 	disabled?: boolean;
 	loading?: boolean;
+	locale?: string;
 }
 
 const props = withDefaults(defineProps<Props>(), {
@@ -29,7 +32,10 @@ const isOpen = ref(false);
 const searchQuery = ref("");
 const wrapperRef = ref<HTMLElement | null>(null);
 const inputRef = ref<HTMLInputElement | null>(null);
+const { t } = useKyokusuLocale(() => props.locale);
 const selectId = props.id || useId();
+const listboxId = useId();
+const optionId = (index: number) => `${listboxId}-option-${index}`;
 const attrs = useAttrs();
 
 const normalizedOptions = computed<MultiSelectOption[]>(() => {
@@ -61,6 +67,10 @@ const filteredOptions = computed(() => {
 
 const openDropdown = () => {
 	if (props.disabled) return;
+	if (isOpen.value) {
+		inputRef.value?.focus();
+		return;
+	}
 	isOpen.value = true;
 	nextTick(() => inputRef.value?.focus());
 };
@@ -89,6 +99,7 @@ const removeOption = (index: number) => {
 const handleInput = (e: Event) => {
 	const target = e.target as HTMLInputElement;
 	emit("search", target.value);
+	activeIndex.value = filteredOptions.value.length > 0 ? 0 : -1;
 };
 
 const handleBackspace = () => {
@@ -96,6 +107,16 @@ const handleBackspace = () => {
 		removeOption(props.modelValue.length - 1);
 	}
 };
+
+const { activeIndex, activeDescendant, handleKeydown } = useListNavigation({
+	items: () => filteredOptions.value,
+	isOpen,
+	optionId,
+	onSelect: (option) => selectOption(option),
+	onOpen: openDropdown,
+	onClose: () => closeDropdown(),
+	selectOnSpace: false,
+});
 
 const handleClickOutside = (event: MouseEvent) => {
 	if (wrapperRef.value && !wrapperRef.value.contains(event.target as Node)) {
@@ -128,10 +149,11 @@ onUnmounted(() => document.removeEventListener("mousedown", handleClickOutside))
                 class="k-multiselect-tag"
             >
                 <span>{{ item.label }}</span>
-                <button 
-                    type="button" 
+                <button
+                    type="button"
                     @click.stop="removeOption(index)"
                     class="k-multiselect-tag-close"
+                    :aria-label="t('removeTag', { label: item.label })"
                 >
                     <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
@@ -145,11 +167,19 @@ onUnmounted(() => document.removeEventListener("mousedown", handleClickOutside))
                 v-model="searchQuery"
                 type="text"
                 class="k-multiselect-input"
-                :placeholder="modelValue.length === 0 ? placeholder : ''"
+                :placeholder="modelValue.length === 0 ? (placeholder || t('selectPlaceholder')) : ''"
                 :disabled="disabled"
+                role="combobox"
+                aria-haspopup="listbox"
+                :aria-expanded="isOpen"
+                :aria-controls="listboxId"
+                :aria-activedescendant="activeDescendant"
+                aria-autocomplete="list"
+                :aria-disabled="disabled || undefined"
                 @input="handleInput"
+                @keydown="handleKeydown"
                 @keydown.backspace="handleBackspace"
-                @focus="isOpen = true"
+                @focus="openDropdown"
             />
 
             <div v-if="loading" class="k-multiselect-loader"></div>
@@ -157,17 +187,22 @@ onUnmounted(() => document.removeEventListener("mousedown", handleClickOutside))
 
         <Transition name="k-multiselect-fade">
             <div v-if="isOpen" class="k-multiselect-popup">
-                <ul class="k-multiselect-list">
-                    <li 
-                        v-for="option in filteredOptions" 
+                <ul :id="listboxId" class="k-multiselect-list" role="listbox">
+                    <li
+                        v-for="(option, index) in filteredOptions"
+                        :id="optionId(index)"
                         :key="option.id"
                         @click.stop="selectOption(option)"
+                        @mousemove="activeIndex = index"
                         class="k-multiselect-item"
+                        :class="{ 'k-multiselect-item--active': activeIndex === index }"
+                        role="option"
+                        :aria-selected="false"
                     >
                         {{ option.label }}
                     </li>
-                    <li v-if="filteredOptions.length === 0 && !loading" class="k-multiselect-empty">
-                        {{ searchQuery ? 'Ничего не найдено' : 'Начните вводить...' }}
+                    <li v-if="filteredOptions.length === 0 && !loading" class="k-multiselect-empty" role="presentation">
+                        {{ searchQuery ? t('noResults') : t('startTyping') }}
                     </li>
                 </ul>
             </div>
@@ -186,51 +221,51 @@ onUnmounted(() => document.removeEventListener("mousedown", handleClickOutside))
     gap: 6px;
     font-family: inherit;
 
-    --k-ms-bg: #ffffff;
-    --k-ms-border: #e4e4e7;
+    --k-ms-bg: var(--k-white);
+    --k-ms-border: var(--k-zinc-200);
     --k-ms-border-focus: rgba(234, 179, 8, 0.5);
     --k-ms-ring: rgba(234, 179, 8, 0.05);
-    --k-ms-text: #18181b;
-    --k-ms-placeholder: #a1a1aa;
-    --k-ms-label: #71717a;
-    --k-ms-disabled-bg: #f4f4f5;
-    --k-ms-error: #ef4444;
+    --k-ms-text: var(--k-zinc-900);
+    --k-ms-placeholder: var(--k-zinc-400);
+    --k-ms-label: var(--k-zinc-500);
+    --k-ms-disabled-bg: var(--k-zinc-100);
+    --k-ms-error: var(--k-red-500);
     
-    --k-ms-tag-bg: #ffffff;
-    --k-ms-tag-border: #e4e4e7;
-    --k-ms-tag-text: #18181b;
-    --k-ms-tag-close: #a1a1aa;
-    --k-ms-tag-close-hover: #ef4444;
+    --k-ms-tag-bg: var(--k-white);
+    --k-ms-tag-border: var(--k-zinc-200);
+    --k-ms-tag-text: var(--k-zinc-900);
+    --k-ms-tag-close: var(--k-zinc-400);
+    --k-ms-tag-close-hover: var(--k-red-500);
     
-    --k-ms-popup-bg: #ffffff;
-    --k-ms-popup-border: #e4e4e7;
+    --k-ms-popup-bg: var(--k-white);
+    --k-ms-popup-border: var(--k-zinc-200);
     --k-ms-popup-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
     
-    --k-ms-item-text: #3f3f46;
-    --k-ms-item-hover-bg: #f4f4f5;
+    --k-ms-item-text: var(--k-zinc-700);
+    --k-ms-item-hover-bg: var(--k-zinc-100);
 }
 
 .dark .k-multiselect-wrapper {
     --k-ms-bg: rgba(24, 24, 27, 0.5);
-    --k-ms-border: #27272a;
+    --k-ms-border: var(--k-zinc-800);
     --k-ms-border-focus: rgba(234, 179, 8, 0.5);
     --k-ms-ring: rgba(234, 179, 8, 0.05);
-    --k-ms-text: #e4e4e7;
-    --k-ms-placeholder: #71717a;
-    --k-ms-label: #a1a1aa;
-    --k-ms-disabled-bg: #18181b;
+    --k-ms-text: var(--k-zinc-200);
+    --k-ms-placeholder: var(--k-zinc-500);
+    --k-ms-label: var(--k-zinc-400);
+    --k-ms-disabled-bg: var(--k-zinc-900);
     
-    --k-ms-tag-bg: #27272a;
-    --k-ms-tag-border: #3f3f46;
-    --k-ms-tag-text: #e4e4e7;
-    --k-ms-tag-close: #71717a;
+    --k-ms-tag-bg: var(--k-zinc-800);
+    --k-ms-tag-border: var(--k-zinc-700);
+    --k-ms-tag-text: var(--k-zinc-200);
+    --k-ms-tag-close: var(--k-zinc-500);
     
-    --k-ms-popup-bg: #18181b;
-    --k-ms-popup-border: #27272a;
+    --k-ms-popup-bg: var(--k-zinc-900);
+    --k-ms-popup-border: var(--k-zinc-800);
     --k-ms-popup-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
     
-    --k-ms-item-text: #d4d4d8;
-    --k-ms-item-hover-bg: #27272a;
+    --k-ms-item-text: var(--k-zinc-300);
+    --k-ms-item-hover-bg: var(--k-zinc-800);
 }
 
 .k-multiselect-label {
@@ -327,7 +362,7 @@ onUnmounted(() => document.removeEventListener("mousedown", handleClickOutside))
     right: 12px;
     width: 16px;
     height: 16px;
-    border: 2px solid #eab308;
+    border: 2px solid var(--k-yellow-500);
     border-top-color: transparent;
     border-radius: 50%;
     animation: k-ms-spin 1s linear infinite;
@@ -341,7 +376,7 @@ onUnmounted(() => document.removeEventListener("mousedown", handleClickOutside))
     position: absolute;
     top: calc(100% + 8px);
     left: 0;
-    z-index: 100;
+    z-index: var(--k-z-overlay);
     width: 100%;
     background-color: var(--k-ms-popup-bg);
     border: 1px solid var(--k-ms-popup-border);
@@ -381,7 +416,8 @@ onUnmounted(() => document.removeEventListener("mousedown", handleClickOutside))
     color: var(--k-ms-item-text);
 }
 
-.k-multiselect-item:hover {
+.k-multiselect-item:hover,
+.k-multiselect-item--active {
     background-color: var(--k-ms-item-hover-bg);
 }
 

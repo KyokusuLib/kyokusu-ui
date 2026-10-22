@@ -26,6 +26,7 @@ import PopoverDemo from '../components/demos/PopoverDemo.vue'
 import ImagePickerDemo from '../components/demos/ImagePickerDemo.vue'
 import CircleBlockDemo from '../components/demos/CircleBlockDemo.vue'
 import DropdowmMenuDemo from '../components/demos/DropdownMenuDemo.vue'
+import ContextMenuDemo from '../components/demos/ContextMenuDemo.vue'
 
 export const componentDemos: Record<string, Component> = {
   Toggle: ToggleDemo,
@@ -53,5 +54,6 @@ export const componentDemos: Record<string, Component> = {
   Popover: PopoverDemo,
   ImagePicker: ImagePickerDemo,
   CircleBlock: CircleBlockDemo,
-  DropdownMenu: DropdowmMenuDemo
+  DropdownMenu: DropdowmMenuDemo,
+  ContextMenu: ContextMenuDemo
 }

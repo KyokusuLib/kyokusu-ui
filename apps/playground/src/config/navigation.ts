@@ -23,7 +23,8 @@ import {
   PhCircleNotch,
   PhChatCircleText,
   PhImage,
-  PhCircle
+  PhCircle,
+  PhMouseRightClick
 } from '@phosphor-icons/vue'
 import type { Component } from 'vue'
 
@@ -66,7 +67,8 @@ export const navigationGroups: NavigationGroup[] = [
       { id: 'Accordion', label: 'Accordion', icon: PhListPlus },
       { id: 'Badge', label: 'Badge', icon: PhMedal },
       { id: 'CircleBlock', label: 'CircleBlock', icon: PhCircle },
-      { id: 'DropdownMenu', label: 'DropdownMenu', icon: PhList }
+      { id: 'DropdownMenu', label: 'DropdownMenu', icon: PhList },
+      { id: 'ContextMenu', label: 'ContextMenu', icon: PhMouseRightClick }
     ]
   },
   {

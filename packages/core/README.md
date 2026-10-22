@@ -8,8 +8,17 @@ Vanilla JS components and styles for Kyokusu UI. Framework-agnostic, class-based
 npm install @kyokusu-ui/core
 ```
 
+The stylesheet is a real CSS file (no runtime injection):
+
 ```js
-import '@kyokusu-ui/core/dist/index.css'
+import '@kyokusu-ui/core/style.css'
+```
+
+All components accept a `locale` option (`'en'`, `'ru'`) for built-in UI
+strings. English is the default.
+
+```js
+import '@kyokusu-ui/core/style.css'
 ```
 
 ## Usage
@@ -220,6 +229,41 @@ new DropdownMenu('#root', {
 })
 ```
 
+### ContextMenu
+
+A right-click menu for an existing element. It reuses DropdownMenu items,
+keyboard navigation, separators and submenus.
+
+```js
+import { ContextMenu } from '@kyokusu-ui/core'
+
+const menu = new ContextMenu('#root', {
+  items: [
+    { id: 'copy', label: 'Copy' },
+    { id: 'paste', label: 'Paste', disabled: true },
+    { id: 'sep', label: '', separator: true },
+    { id: 'share', label: 'Share', submenu: [
+      { id: 'link', label: 'Copy link' }
+    ]}
+  ],
+  width: 220,
+  onSelect: (item) => console.log(item.id),
+  onOpen: ({ x, y }) => console.log(x, y),
+  onClose: () => console.log('closed')
+})
+
+menu.openAt(120, 80)
+menu.close()
+menu.destroy()
+```
+
+If ContextMenu is the only component you use, import its standalone
+stylesheet instead of the full bundle:
+
+```js
+import '@kyokusu-ui/core/context-menu.css'
+```
+
 ### ModalWindow
 
 ```js
@@ -317,6 +361,17 @@ const confirm = new ModalConfirm({
 })
 confirm.open()
 ```
+
+## Migration notes
+
+- Styles are shipped as a real CSS file. Import `@kyokusu-ui/vue/style.css`
+  (or `@kyokusu-ui/core/style.css`) once in your application entry point.
+  Runtime CSS injection has been removed, which makes the packages SSR-safe.
+- `ModalWindow` / `ModalConfirm` no longer accept Tailwind classes in `width`.
+  Pass a CSS length (`"32rem"`) or a number of pixels (`512`).
+- Built-in UI strings are localised. English is the default; pass
+  `locale: 'ru'` in a component's options, e.g.
+  `new SearchSelect('#root', { options, locale: 'ru' })`.
 
 ## License
 

@@ -36,6 +36,12 @@ import { Button } from '@kyokusu-ui/vue'
 </template>
 ```
 
+Don't forget the stylesheet:
+
+```js
+import '@kyokusu-ui/vue/style.css'
+```
+
 ### Vanilla JS
 
 ```bash
@@ -44,7 +50,7 @@ npm install @kyokusu-ui/core
 
 ```javascript
 import { DatePicker } from '@kyokusu-ui/core'
-import '@kyokusu-ui/core/dist/index.css'
+import '@kyokusu-ui/core/style.css'
 
 const dp = new DatePicker('#datepicker-root', {
   label: 'Select Date',

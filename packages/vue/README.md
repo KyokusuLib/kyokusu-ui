@@ -9,8 +9,25 @@ npm install @kyokusu-ui/vue
 ```
 
 ```js
-import '@kyokusu-ui/vue/dist/index.css'
+import '@kyokusu-ui/vue/style.css'
 ```
+
+### Locale
+
+Components use English UI strings by default. Set the locale once for the
+whole application:
+
+```js
+import { createApp } from 'vue'
+import { createKyokusuUI } from '@kyokusu-ui/vue'
+
+createApp(App)
+  .use(createKyokusuUI({ locale: 'ru' }))
+  .mount('#app')
+```
+
+Any component also accepts a `locale` prop for local overrides. Custom
+dictionaries can be passed via `createKyokusuUI({ messages: { en: { ... } } })`.
 
 ## Usage
 
@@ -257,6 +274,35 @@ import { DropdownMenu } from '@kyokusu-ui/vue'
 </template>
 ```
 
+### ContextMenu
+
+Wrap the area that should respond to right-click. The menu is teleported to
+`body` and supports icons, separators, disabled items and submenus.
+
+```vue
+<script setup>
+import { ContextMenu } from '@kyokusu-ui/vue'
+
+const items = [
+  { id: 'copy', label: 'Copy' },
+  { id: 'paste', label: 'Paste', disabled: true },
+  { id: 'sep', label: '', separator: true },
+  { id: 'share', label: 'Share', submenu: [
+    { id: 'link', label: 'Copy link' }
+  ]}
+]
+</script>
+
+<template>
+  <ContextMenu :items="items" :width="220" @select="(item) => console.log(item.id)">
+    <div tabindex="0">Right-click this area</div>
+  </ContextMenu>
+</template>
+```
+
+Props: `items`, `disabled`, `width`, `locale`. Emits: `select`, `open`,
+`close`. The component exposes `openAt(x, y)` and `close()`.
+
 ### ModalWindow
 
 ```vue
@@ -399,6 +445,16 @@ import { PageLayout } from '@kyokusu-ui/vue'
   </PageLayout>
 </template>
 ```
+
+## Migration notes
+
+- Styles are shipped as a real CSS file. Import `@kyokusu-ui/vue/style.css`
+  (or `@kyokusu-ui/core/style.css`) once in your application entry point.
+  Runtime CSS injection has been removed, which makes the packages SSR-safe.
+- `ModalWindow` / `ModalConfirm` no longer accept Tailwind classes in `width`.
+  Pass a CSS length (`"32rem"`) or a number of pixels (`512`).
+- Built-in UI strings are localised. English is the default; pass `locale="ru"`
+  or configure it globally with `createKyokusuUI({ locale: 'ru' })`.
 
 ## License
 
